@@ -1,0 +1,65 @@
+.needs <std>
+.needs <test>
+
+import {beforeAll, beforeEach, afterEach, afterAll, describe, it, itSkip, fix, getFixture, assertEqual, assertTrue, summary} from "ATest" under test;
+
+class HookState {
+    mutable bool beforeAllRan = false;
+    mutable int beforeEachCount = 0;
+    mutable int afterEachCount = 0;
+    mutable bool afterAllRan = false;
+
+    fn init() -> Self {
+        return my;
+    };
+};
+
+fn main() -> int {
+    test.fix("hookState", fn () {
+        return new HookState();
+    });
+
+    test.describe("Hooks and fixtures", fn () {
+        test.beforeAll(fn () {
+            HookState state = test.getFixture("hookState");
+            state.beforeAllRan = true;
+        });
+
+        test.beforeEach(fn () {
+            HookState state = test.getFixture("hookState");
+            state.beforeEachCount = state.beforeEachCount + 1;
+        });
+
+        test.afterEach(fn () {
+            HookState state = test.getFixture("hookState");
+            state.afterEachCount = state.afterEachCount + 1;
+        });
+
+        test.afterAll(fn () {
+            HookState state = test.getFixture("hookState");
+            state.afterAllRan = true;
+        });
+
+        test.it("tracks hook counts", fn () {
+            HookState state = test.getFixture("hookState");
+            test.assertTrue(state.beforeAllRan);
+            test.assertEqual(state.beforeEachCount, 1);
+            test.assertEqual(state.afterEachCount, 0);
+        });
+
+        test.itSkip("unimplemented behavior", "demonstration");
+    });
+
+    test.describe("Simple assertions", fn () {
+        test.it("compares strings", fn () {
+            test.assertTrue(`aflat` == `aflat`);
+        });
+
+        test.it("adds numbers", fn () {
+            test.assertEqual(2 + 2, 4);
+        });
+    });
+
+    test.summary();
+    return 0;
+};

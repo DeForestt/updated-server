@@ -1,0 +1,27 @@
+<article class="tutorial-section" data-step="classes">
+  <h2>Classes</h2>
+  <pre><code>class Student {
+    mutable int id;
+    mutable string name = "";
+    mutable int average;
+};</code></pre>
+  <p>Constructor example:</p>
+  <pre><code>class Student {
+    mutable int id;
+    mutable string name = "";
+    mutable int average;
+
+    fn init(int id, string name, int average) -> Student {
+        my.id = id;
+        my.name = name;
+        my.average = average;
+    };
+};
+
+fn main() -> int {
+    let s = Student(1, "John", 90);
+    str.print(`Student: {s.name} id: {s.id} average: {s.average}\n`);
+    return 0;
+};</code></pre>
+  <p>Struct literals can initialize objects too, but field order must stay synchronized with the signature.</p>
+</article>

@@ -1,0 +1,8 @@
+.needs <std>
+import Content from "Web/Content";
+
+class IndexJS signs Content {
+    fn init() {
+        my.loadFile("./public/index.js");
+    };
+};

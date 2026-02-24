@@ -1,0 +1,71 @@
+<article class="tutorial-section" data-step="roster">
+  <h2>Roster system</h2>
+  <pre><code>fn addStudent(vector::<Student> roster) -> void {
+    let name = str.readString("Enter student name: ");
+    let id = roster.count() + 1;
+    roster.push_back(new Student(id, name, 0));
+};
+
+fn addGrade(vector::<Student> roster) -> bool {
+    let id = str.readString("Enter student id: ");
+    let id = match id.toInt() {
+        Ok(i) => i,
+        Err => {
+            str.print("Invalid ID. Please enter a valid integer.\n");
+            return false;
+        }
+    };
+
+    let student = match roster.findFirst(fn (Student s, int& i) return s.id == i, ?id) {
+        Some(s) => s,
+        None => {
+            str.print("Student not found.\n");
+            return false;
+        }
+    };
+
+    let assignmentName = str.readString("Enter assignment name: ");
+    let grade = str.readString("Enter assignment grade: ");
+    match grade.toInt() {
+        Ok(g) => {
+            let assignment = new Assignment(assignmentName, g);
+            student.addAssignment($assignment);
+            roster.set(student.id - 1, $student);
+            return true;
+        },
+        Err => {
+            str.print("Invalid grade. Please enter a valid integer.\n");
+            return false;
+        }
+    };
+};</code></pre>
+  <p>Main loop:</p>
+  <pre><code>fn main() -> int {
+    let roster = new vector::<Student>();
+
+    while true {
+        str.print("\n--Student Roster--\n");
+        foreach s in roster {
+            s.printInfo();
+        };
+        str.print("--------------------\n");
+        str.print("Menu : 1. Add a student | 2. Add Grade | quit\n> ");
+        let input = str.readString("Enter a command: ");
+
+        if input == "1" {
+            addStudent(roster);
+        } else if input == "2" {
+            if !addGrade(roster) {
+                str.print("Failed to add grade.\n");
+            };
+        } else if input == "quit" | input == "exit" {
+            str.print("Exiting program.\n");
+            break;
+        } else {
+            str.print("Invalid command. Please try again.\n");
+        };
+    };
+
+    return 0;
+};</code></pre>
+</article>

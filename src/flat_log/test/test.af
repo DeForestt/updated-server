@@ -1,0 +1,18 @@
+.needs <std>
+
+import {case, report, require} from "ATest.af" under test;
+import string from "String";
+import TestSuite from "ATest.af";
+import {flat_log} from "./src/mod" under lib;
+
+bool test_flat_log() : test.case("test_flat_log") {
+	 return test.require(lib.flat_log(1, 2) == 3, "1 + 2 = 3");
+};
+
+int main() {
+	TestSuite suite = new TestSuite("flat_log Test Suite");
+	suite.addCase(test_flat_log);
+	suite.run();
+	test.report();
+	return 0;
+};

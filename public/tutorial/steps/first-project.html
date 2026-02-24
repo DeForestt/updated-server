@@ -1,0 +1,21 @@
+<article class="tutorial-section" data-step="first-project">
+  <h2>First project</h2>
+  <p>Create the tutorial starter:</p>
+  <pre><code>aflat make tutorial</code></pre>
+  <p>Use <code>--lib</code> before <code>make</code> for a library template. The generated folder ships with <code>aflat.cfg</code>, <code>src/main.af</code>, and <code>src/test/test.af</code>.</p>
+  <h3>Adding dependencies</h3>
+  <p>List modules under <code>[dependencies]</code> in <code>aflat.cfg</code>. Run <code>aflat install &lt;git_repo&gt;</code> to clone remote repositories and update the config automatically.</p>
+  <h3>Hello world breakdown</h3>
+  <pre><code>.needs &lt;std&gt;
+import * from "io" under io;
+
+fn main() -> int {
+    io.print("Hello, world!\n");
+    return 0;
+};</code></pre>
+  <ul>
+    <li><code>.needs</code> brings in the std library.</li>
+    <li><code>import</code> exposes <code>io</code> helpers under the <code>io.</code> prefix.</li>
+    <li><code>fn main</code> is the entry point; <code>io.print</code> writes to stdout.</li>
+  </ul>
+</article>

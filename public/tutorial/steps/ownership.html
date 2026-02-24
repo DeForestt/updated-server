@@ -1,0 +1,19 @@
+<article class="tutorial-section" data-step="ownership">
+  <h2>Ownership model</h2>
+  <p>AFlat tracks ownership for heap objects:</p>
+  <ul>
+    <li>Only owned values (from <code>new</code> or <code>&amp;&amp;</code>) can be moved or returned.</li>
+    <li>Use <code>$</code> to transfer ownership.</li>
+    <li><code>&amp;&amp;</code> parameters consume their arguments.</li>
+    <li>Returning fields transfers ownership; avoid double-use after moves.</li>
+  </ul>
+  <pre><code>Expression                   Owned? Requires $?
+---------------------------------------------
+new Foo()                    yes    no
+let f = new Foo()            yes    yes
+someFunc() returning T!      yes    no
+field from owned object      yes    yes
+stack or literal value       no     n/a
+function param (&amp;&amp;)          yes    yes or no (if rvalue)
+</code></pre>
+</article>

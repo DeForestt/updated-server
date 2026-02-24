@@ -1,0 +1,268 @@
+{
+    "processed_files": [
+        {
+            "path": "flat_log.aflat.cfg",
+            "chunks": 1,
+            "size": 117,
+            "lines": 7,
+            "words": 15
+        },
+        {
+            "path": "Dockerfile",
+            "chunks": 1,
+            "size": 916,
+            "lines": 38,
+            "words": 128
+        },
+        {
+            "path": "compact.yml",
+            "chunks": 1,
+            "size": 257,
+            "lines": 11,
+            "words": 23
+        },
+        {
+            "path": "aflat.cfg",
+            "chunks": 1,
+            "size": 328,
+            "lines": 10,
+            "words": 26
+        },
+        {
+            "path": "fly.toml",
+            "chunks": 1,
+            "size": 460,
+            "lines": 22,
+            "words": 59
+        },
+        {
+            "path": ".gitignore",
+            "chunks": 1,
+            "size": 90,
+            "lines": 9,
+            "words": 13
+        },
+        {
+            "path": "src/main.af",
+            "chunks": 1,
+            "size": 5216,
+            "lines": 139,
+            "words": 513
+        },
+        {
+            "path": "src/test/test.af",
+            "chunks": 1,
+            "size": 1804,
+            "lines": 65,
+            "words": 169
+        },
+        {
+            "path": "src/flat_log/mod.af",
+            "chunks": 1,
+            "size": 698,
+            "lines": 25,
+            "words": 85
+        },
+        {
+            "path": "src/flat_log/test/test.af",
+            "chunks": 1,
+            "size": 445,
+            "lines": 18,
+            "words": 56
+        },
+        {
+            "path": "src/flat_log/Logger/mod.af",
+            "chunks": 1,
+            "size": 1711,
+            "lines": 75,
+            "words": 228
+        },
+        {
+            "path": "src/UI/Tutorial/mod.af",
+            "chunks": 1,
+            "size": 153,
+            "lines": 8,
+            "words": 17
+        },
+        {
+            "path": "src/UI/Index/mod.af",
+            "chunks": 1,
+            "size": 146,
+            "lines": 8,
+            "words": 17
+        },
+        {
+            "path": "src/UI/Assets/IndexJS/mod.af",
+            "chunks": 1,
+            "size": 147,
+            "lines": 8,
+            "words": 17
+        },
+        {
+            "path": "src/UI/Assets/Styles/mod.af",
+            "chunks": 1,
+            "size": 148,
+            "lines": 8,
+            "words": 17
+        },
+        {
+            "path": "src/UI/Examples/mod.af",
+            "chunks": 1,
+            "size": 153,
+            "lines": 8,
+            "words": 17
+        },
+        {
+            "path": "public/styles.css",
+            "chunks": 1,
+            "size": 9205,
+            "lines": 523,
+            "words": 1076
+        },
+        {
+            "path": "public/index.html",
+            "chunks": 1,
+            "size": 8742,
+            "lines": 206,
+            "words": 663
+        },
+        {
+            "path": "public/examples.html",
+            "chunks": 1,
+            "size": 4440,
+            "lines": 145,
+            "words": 420
+        },
+        {
+            "path": "public/index.js",
+            "chunks": 1,
+            "size": 4486,
+            "lines": 149,
+            "words": 441
+        },
+        {
+            "path": "public/tutorial.html",
+            "chunks": 1,
+            "size": 3317,
+            "lines": 74,
+            "words": 215
+        },
+        {
+            "path": "public/tutorial/steps/customizing.html",
+            "chunks": 1,
+            "size": 339,
+            "lines": 12,
+            "words": 37
+        },
+        {
+            "path": "public/tutorial/steps/first-project.html",
+            "chunks": 1,
+            "size": 1053,
+            "lines": 21,
+            "words": 98
+        },
+        {
+            "path": "public/tutorial/steps/ownership.html",
+            "chunks": 1,
+            "size": 862,
+            "lines": 19,
+            "words": 87
+        },
+        {
+            "path": "public/tutorial/steps/templates.html",
+            "chunks": 1,
+            "size": 341,
+            "lines": 4,
+            "words": 28
+        },
+        {
+            "path": "public/tutorial/steps/results.html",
+            "chunks": 1,
+            "size": 595,
+            "lines": 19,
+            "words": 71
+        },
+        {
+            "path": "public/tutorial/steps/modules.html",
+            "chunks": 1,
+            "size": 440,
+            "lines": 5,
+            "words": 46
+        },
+        {
+            "path": "public/tutorial/steps/methods.html",
+            "chunks": 1,
+            "size": 610,
+            "lines": 21,
+            "words": 65
+        },
+        {
+            "path": "public/tutorial/steps/strings.html",
+            "chunks": 1,
+            "size": 664,
+            "lines": 17,
+            "words": 69
+        },
+        {
+            "path": "public/tutorial/steps/conditionals.html",
+            "chunks": 1,
+            "size": 568,
+            "lines": 18,
+            "words": 69
+        },
+        {
+            "path": "public/tutorial/steps/classes.html",
+            "chunks": 1,
+            "size": 751,
+            "lines": 27,
+            "words": 92
+        },
+        {
+            "path": "public/tutorial/steps/wrapup.html",
+            "chunks": 1,
+            "size": 238,
+            "lines": 4,
+            "words": 26
+        },
+        {
+            "path": "public/tutorial/steps/guessing.html",
+            "chunks": 1,
+            "size": 826,
+            "lines": 29,
+            "words": 96
+        },
+        {
+            "path": "public/tutorial/steps/installation.html",
+            "chunks": 1,
+            "size": 668,
+            "lines": 10,
+            "words": 66
+        },
+        {
+            "path": "public/tutorial/steps/random.html",
+            "chunks": 1,
+            "size": 990,
+            "lines": 32,
+            "words": 119
+        },
+        {
+            "path": "public/tutorial/steps/loops.html",
+            "chunks": 1,
+            "size": 922,
+            "lines": 30,
+            "words": 113
+        },
+        {
+            "path": "public/tutorial/steps/roster.html",
+            "chunks": 1,
+            "size": 2156,
+            "lines": 71,
+            "words": 236
+        }
+    ],
+    "skipped_files": [],
+    "summary": {
+        "total_files_processed": 37,
+        "total_words": 5533
+    }
+}

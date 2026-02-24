@@ -1,0 +1,11 @@
+repo_path: /home/dthompson/repos/updated-server
+output_dir: /home/dthompson/repos/updated-server/compact
+max_words: 200000
+max_file_size: 10485760 # 10 MB
+skip_patterns:
+  - "*.log"
+  - "*.tmp"
+skip_dirs:
+  - "__pycache__"
+  - "node_modules"
+verbose: false

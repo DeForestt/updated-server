@@ -1,0 +1,188 @@
+.needs <std>
+import {print} from "String" under str;
+import string from "String";
+import Server from "HTTP/Server";
+import Middleware from "HTTP/Middleware";
+import HTTPMessage, HTTPResponse, NotImplementedError, NotFoundError from "HTTP";
+import result from "Utils/result";
+import {accept, reject, resultWrapper} from "Utils/result" under res;
+import GET, POST, PUT, DELETE from "HTTP/Endpoints";
+import {info} from "./flat_log" under log;
+import unordered_map from "Collections/unordered_map";
+import option from "Utils/option";
+import {Some, None, optionWrapper} from "Utils/option" under opt;
+import {methodToString} from "HTTP" under http;
+import Content from "Web/Content";
+import Index from "./UI/Index";
+import Tutorial from "./UI/Tutorial";
+import Examples from "./UI/Examples";
+import IndexJS from "./UI/Assets/IndexJS";
+import Styles from "./UI/Assets/Styles";
+import SandboxPage from "./UI/Sandbox";
+import SandboxJS from "./UI/Assets/SandboxJS";
+import {runAflat} from "./sandbox" under sandbox;
+
+class TutorialStep signs Content {
+	fn init(const string filePath) {
+		my.loadFile(filePath.cstr());
+		return my;
+	};
+};
+
+class AflatServer signs Server {
+
+	fn logRequest() -> unordered_map::<adr> : Middleware {
+		unordered_map::<adr> val = {
+			"before": fn (Server __s, HTTPMessage &&req) {
+				log.info(`[{http.methodToString(req.method)}] {req.endpoint}\n`);
+				return req;
+			},
+			"after": fn (Server __s, HTTPMessage __req, HTTPResponse &&r) {
+				log.info(`\t{r.getStatusCode()} {r.getStatusMessage()}\n`);
+				return r;
+			}
+		};
+		return val;
+	};
+
+	fn addContentLength() : Middleware {
+    	unordered_map::<adr> val = {
+   			"after": fn (Server __s, HTTPMessage __req, HTTPResponse &&r) {
+   				const string body = r.getBody();
+   	 			r.addHeader("Content-Length", `{body.len()}`.cstr());
+				return r;
+    		},
+    	};
+    	return val;
+    };
+
+	fn index() : GET("/") {
+		Index home = new Index();
+		let resp = new HTTPResponse(home.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
+	};
+
+	fn tutorial() : GET("/tutorial") {
+		Tutorial page = new Tutorial();
+		let resp = new HTTPResponse(page.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
+	};
+
+	fn examples() : GET("/examples") {
+		Examples page = new Examples();
+		let resp = new HTTPResponse(page.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
+	};
+
+	fn assetScript() : GET("/index.js") {
+		IndexJS script = new IndexJS();
+		let resp = new HTTPResponse(script.render(), "200", "OK");
+		resp.addHeader("Content-Type", "application/javascript");
+		return res.accept(resp);
+	};
+
+	fn assetStyles() : GET("/styles.css") {
+		Styles styles = new Styles();
+		let resp = new HTTPResponse(styles.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/css");
+		return res.accept(resp);
+	};
+
+	fn sandboxPage() : GET("/sandbox") {
+		SandboxPage page = new SandboxPage();
+		let resp = new HTTPResponse(page.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
+	};
+
+	fn sandboxScript() : GET("/sandbox.js") {
+		SandboxJS script = new SandboxJS();
+		let resp = new HTTPResponse(script.render(), "200", "OK");
+		resp.addHeader("Content-Type", "application/javascript");
+		return res.accept(resp);
+	};
+
+	fn runSandbox(HTTPMessage req) : POST("/sandbox/run") {
+		string body = req.body;
+		if body.len() == 0 {
+			const string errorBody = new string("AFlat source is required\n");
+			let bad = new HTTPResponse(errorBody.cstr(), "400", "Bad Request");
+			bad.addHeader("Content-Type", "text/plain; charset=utf-8");
+			return res.accept(bad);
+		};
+
+		match sandbox.runAflat(body) {
+			Ok(output) => {
+				let ok = new HTTPResponse(output.cstr(), "200", "OK");
+				ok.addHeader("Content-Type", "text/plain; charset=utf-8");
+				return res.accept(ok);
+			},
+			Err(err) => {
+				const string failure = `Sandbox run failed: {err}`;
+				let bad = new HTTPResponse(failure.cstr(), "400", "Bad Request");
+				bad.addHeader("Content-Type", "text/plain; charset=utf-8");
+				return res.accept(bad);
+			}
+		};
+	};
+
+
+	fn tutorialStep(HTTPMessage msg, ? string stepId) : GET("/tutorial/steps/:*") {
+		if stepId.isNone() {
+			const string body = new string("Step not found");
+			let resp = new HTTPResponse(body, "404", "Not Found");
+			resp.addHeader("Content-Type", "text/plain");
+			return res.accept(resp);
+		};
+		const option::<string> maybePath = my.stepPath(stepId.or(``));
+		match maybePath {
+			Some(path) => {
+				TutorialStep snippet = new TutorialStep(path);
+				let resp = new HTTPResponse(snippet.render(), "200", "OK");
+				resp.addHeader("Content-Type", "text/html");
+				return res.accept(resp);
+			},
+			None => {
+				const string body = new string("Step not found");
+				let resp = new HTTPResponse(body, "404", "Not Found");
+				resp.addHeader("Content-Type", "text/plain");
+				return res.accept(resp);
+			}
+		};
+	};
+
+	fn stepPath(const string step) -> option::<string> {
+		if step == "installation" return opt.Some::<string>(new string("./public/tutorial/steps/installation.html"));
+		if step == "first-project" return opt.Some::<string>(new string("./public/tutorial/steps/first-project.html"));
+		if step == "customizing" return opt.Some::<string>(new string("./public/tutorial/steps/customizing.html"));
+		if step == "strings" return opt.Some::<string>(new string("./public/tutorial/steps/strings.html"));
+		if step == "conditionals" return opt.Some::<string>(new string("./public/tutorial/steps/conditionals.html"));
+		if step == "guessing" return opt.Some::<string>(new string("./public/tutorial/steps/guessing.html"));
+		if step == "loops" return opt.Some::<string>(new string("./public/tutorial/steps/loops.html"));
+		if step == "random" return opt.Some::<string>(new string("./public/tutorial/steps/random.html"));
+		if step == "classes" return opt.Some::<string>(new string("./public/tutorial/steps/classes.html"));
+		if step == "methods" return opt.Some::<string>(new string("./public/tutorial/steps/methods.html"));
+		if step == "modules" return opt.Some::<string>(new string("./public/tutorial/steps/modules.html"));
+		if step == "roster" return opt.Some::<string>(new string("./public/tutorial/steps/roster.html"));
+		if step == "ownership" return opt.Some::<string>(new string("./public/tutorial/steps/ownership.html"));
+		if step == "results" return opt.Some::<string>(new string("./public/tutorial/steps/results.html"));
+		if step == "templates" return opt.Some::<string>(new string("./public/tutorial/steps/templates.html"));
+		if step == "wrapup" return opt.Some::<string>(new string("./public/tutorial/steps/wrapup.html"));
+		return opt.None::<string>();
+	};
+
+
+	AflatServer init() {
+		return my;
+	};
+};
+
+
+fn main() {
+	let server = AflatServer();
+	server.listen();
+	return 0;
+};

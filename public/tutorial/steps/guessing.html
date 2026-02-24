@@ -1,0 +1,29 @@
+<article class="tutorial-section" data-step="guessing">
+  <h2>Guessing game</h2>
+  <p>Introduce <code>match</code> to handle parsing errors:</p>
+  <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+import Error from "Utils/Error";
+import result from "Utils/result";
+import { accept, reject } from "Utils/result";
+
+fn main() -> int {
+    int secret = 42;
+
+    let guess = str.readString("Enter your guess: ");
+    let guessInt = match guess.toInt() {
+        Ok(i) => i,
+        Err(err) => panic(`Error converting string to int: {err}`.cstr())
+    };
+
+    if guessInt == secret
+        str.print("You guessed it!\n")
+    else if guessInt < secret
+        str.print("Too low!\n")
+    else
+        str.print("Too high!\n");
+
+    return 0;
+};</code></pre>
+</article>

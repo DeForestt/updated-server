@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>updated-server - Welcome Hub</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link active" href="/">Home</a>
+          <a class="nav-link" href="/tutorial">Tutorial</a>
+          <a class="nav-link" href="/examples">Examples</a>
+          <a class="nav-link" href="/sandbox">Sandbox</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">AFlat Toolchain</p>
+          <h1>Welcome to the AFlat Programming Language</h1>
+          <p class="lead" id="welcome-line">
+            A bigger, bolder sandbox for staging AFlat experiments, creative endpoints, and HTTP
+            drills.
+          </p>
+          <p class="powered">
+            This entire site is powered by the AFlat stack — rendered via Web/Content and served by
+            AflatServer.
+          </p>
+          <div class="hero-actions">
+            <button class="pill" data-message="Compile everything with 'aflat build'.">Build</button>
+            <button class="pill" data-message="Boot the server locally using 'aflat run'.">Run</button>
+            <button class="pill" data-message="Guard regressions with 'aflat test'.">Test</button>
+            <a class="ghost" href="#modules">Explore modules</a>
+          </div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card">
+            <span>Stack</span>
+            <strong>AFlat - HTTP</strong>
+            <p>Single binary server with Content-powered UI.</p>
+          </div>
+          <div class="meta-card">
+            <span>Entry point</span>
+            <strong>src/main.af</strong>
+            <p>AflatServer handles routing plus static assets.</p>
+          </div>
+          <div class="meta-card">
+            <span>Quickstart</span>
+            <strong>aflat run</strong>
+            <p>Launch and hit http://localhost:8000/.</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="panel info-grid">
+        <article>
+          <h2>Why this repo</h2>
+          <p>
+            updated-server ships as a ready-to-build reference. Clone it to demo HTTP endpoints,
+            content rendering, and std library workflows without scaffolding.
+          </p>
+        </article>
+        <article>
+          <h2>What's inside</h2>
+          <p>
+            A curated README walk-through, minimal server wiring, and an expressive landing page you
+            can tweak or replace as you prototype.
+          </p>
+        </article>
+        <article>
+          <h2>Next moves</h2>
+          <p>
+            Fork, create a module, and wire a new endpoint. updated-server thrives when you treat it
+            like a sketchpad.
+          </p>
+        </article>
+      </section>
+
+      <section class="panel command-center" id="commands">
+        <div class="panel-header">
+          <h2>Command deck</h2>
+          <p>Highlight a command to refresh the quick brief.</p>
+        </div>
+        <div class="command-grid">
+          <div class="command-list">
+            <button class="command-button"
+              data-title="aflat build"
+              data-description="Compile sources defined in aflat.cfg."
+              data-tip="Outputs bin/a.out ready for the next run step."
+            >aflat build</button>
+            <button class="command-button"
+              data-title="aflat run"
+              data-description="Build and boot updated-server on localhost:8000."
+              data-tip="Keep a terminal open so logs stream as you browse."
+            >aflat run</button>
+            <button class="command-button"
+              data-title="aflat test"
+              data-description="Execute test/test.af and confirm regressions are caught."
+              data-tip="Great for validating new modules before merging."
+            >aflat test</button>
+            <button class="command-button"
+              data-title="aflat docs src/main.af"
+              data-description="Inspect the classes and functions inside AflatServer."
+              data-tip="Use docs to onboard newcomers or recall signatures quickly."
+            >aflat docs src/main.af</button>
+            <button class="command-button"
+              data-title="aflat docs String"
+              data-description="Review the std String module for slicing, casing, and conversions."
+              data-tip="String helpers power most templating tricks."
+            >aflat docs String</button>
+            <button class="command-button"
+              data-title="aflat module <name>"
+              data-description="Scaffold src/<name>/mod.af and register it under dependencies."
+              data-tip="Perfect for spinning up UI components or log utilities."
+            >aflat module &lt;name&gt;</button>
+          </div>
+          <div class="command-display" aria-live="polite">
+            <p class="command-label" id="command-title">aflat build</p>
+            <p id="command-description">Compile sources defined in aflat.cfg.</p>
+            <p class="command-tip" id="command-tip">Outputs bin/a.out ready for the next run step.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel modules" id="modules">
+        <div class="panel-header">
+          <h2>Std library flight plan</h2>
+          <p>Select a filter to view the relevant module clusters cited in README.md.</p>
+        </div>
+        <div class="filter-row">
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="runtime">Runtime</button>
+          <button class="filter-pill" data-filter="collections">Collections</button>
+          <button class="filter-pill" data-filter="http">HTTP</button>
+          <button class="filter-pill" data-filter="utility">Utilities</button>
+        </div>
+        <div class="module-grid">
+          <article class="module-card" data-group="runtime">
+            <h3>Runtime & strings</h3>
+            <p>std, std-cmp, Memory, String, strings, System</p>
+          </article>
+          <article class="module-card" data-group="runtime">
+            <h3>Numerics & IO</h3>
+            <p>math, io, files, DateTime</p>
+          </article>
+          <article class="module-card" data-group="collections">
+            <h3>Collections toolkit</h3>
+            <p>Collections, Vector, Iterator, Enumerator, Scroller, Tuple, unordered_map</p>
+          </article>
+          <article class="module-card" data-group="http">
+            <h3>Networking stack</h3>
+            <p>HTTP core, Endpoint helpers, HTTP/Server, Middleware, request.c</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Data & serialization</h3>
+            <p>JSON, JSON/Parse, JSON/Property</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Result & error helpers</h3>
+            <p>Utils/option, Utils/Option, Utils/result, Utils/Error, Utils/Error/Render</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Productivity suite</h3>
+            <p>Utils/Functions, Defer, Map, Object, Properties, Observable</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Testing & concurrency</h3>
+            <p>ATest, concurrency, CLArgs</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel timeline">
+        <div class="panel-header">
+          <h2>Mission cadence</h2>
+          <p>Use this loop to keep work moving fast.</p>
+        </div>
+        <ol>
+          <li>
+            <strong>Initialize</strong>
+            <span>Run <code>aflat module</code> and make your canvas.</span>
+          </li>
+          <li>
+            <strong>Build & observe</strong>
+            <span>Pair <code>aflat build</code> with logs to stay aware of changes.</span>
+          </li>
+          <li>
+            <strong>Test & review</strong>
+            <span>Lean on <code>aflat test</code> and <code>aflat docs</code> before sharing.</span>
+          </li>
+          <li>
+            <strong>Ship & iterate</strong>
+            <span>Capture new learnings on this page for the next mission.</span>
+          </li>
+        </ol>
+      </section>
+
+      <footer>
+        updated-server - Powered by the AFlat standard library - Built bold on HTML, CSS, and JS
+      </footer>
+    </div>
+    <script defer src="/index.js"></script>
+  </body>
+</html>

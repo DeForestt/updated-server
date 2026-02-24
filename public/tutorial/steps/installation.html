@@ -1,0 +1,10 @@
+<article class="tutorial-section" data-step="installation">
+  <h2>Installation</h2>
+  <p><strong>Remember:</strong> If aflat is already installed, pull the latest changes first. Refer to the README instructions to download and build the toolchain.</p>
+  <p>Update in place:</p>
+  <pre><code>aflat update</code></pre>
+  <p>Build the compiler from source with CMake:</p>
+  <pre><code>mkdir build &amp;&amp; cd build
+cmake .. &amp;&amp; make</code></pre>
+  <p>Format C++ changes with <code>clang-format</code> and run <code>./rebuild-libs.sh</code> after editing <code>libraries/std/src</code>. Use <code>./bin/aflat run</code> to ensure everything works.</p>
+</article>

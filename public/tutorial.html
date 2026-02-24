@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AFlat Tutorial - updated-server</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page tutorial">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link active" href="/tutorial">Tutorial</a>
+          <a class="nav-link" href="/examples">Examples</a>
+          <a class="nav-link" href="/sandbox">Sandbox</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">AFlat programming language</p>
+          <h1>First Steps with AFlat</h1>
+          <p class="lead">
+            Click through each stage to install the toolchain, scaffold projects, manipulate strings,
+            build classes, manage ownership, and ship a roster manager.
+          </p>
+          <p class="powered">
+            Every section is served via the AFlat API, so updating a single step hot-reloads the
+            content without redeploying the rest of the page.
+          </p>
+        </div>
+      </header>
+
+      <section class="tutorial-layout">
+        <aside class="step-menu">
+          <h2>Steps</h2>
+          <div class="step-list">
+            <button class="step-button active" data-step="installation">Installation</button>
+            <button class="step-button" data-step="first-project">First project</button>
+            <button class="step-button" data-step="customizing">Make it yours</button>
+            <button class="step-button" data-step="strings">Strings</button>
+            <button class="step-button" data-step="conditionals">Conditionals</button>
+            <button class="step-button" data-step="guessing">Guessing game</button>
+            <button class="step-button" data-step="loops">Loops</button>
+            <button class="step-button" data-step="random">Random numbers</button>
+            <button class="step-button" data-step="classes">Classes</button>
+            <button class="step-button" data-step="methods">Methods & vectors</button>
+            <button class="step-button" data-step="modules">Modules</button>
+            <button class="step-button" data-step="roster">Roster app</button>
+            <button class="step-button" data-step="ownership">Ownership</button>
+            <button class="step-button" data-step="results">result union</button>
+            <button class="step-button" data-step="templates">Templates</button>
+            <button class="step-button" data-step="wrapup">Wrap-up</button>
+          </div>
+        </aside>
+
+        <div class="tutorial-content">
+          <article class="tutorial-section" id="tutorial-stage">
+            <p>Loading tutorial step…</p>
+          </article>
+          <div class="step-navigation">
+            <button class="prev-step" id="tutorial-prev" disabled>Previous</button>
+            <button class="next-step" id="tutorial-next">Next step</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        updated-server - AFlat tutorial served straight from the language itself
+      </footer>
+    </div>
+    <script defer src="/index.js"></script>
+  </body>
+</html>

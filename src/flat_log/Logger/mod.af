@@ -1,0 +1,75 @@
+.needs <std>
+import string from "String";
+import { print } from "String" under str;
+import {envVar} from "System" under sys;
+import { Now } from "DateTime" under dt;
+import DateTime from "DateTime";
+
+enum LogLevel {
+  Debug,
+  Info,
+  Warn,
+  Error,
+};
+
+private string logLevelToString(LogLevel level) {
+  if level == LogLevel.Info {
+    return `INFO`;
+  } else if level == LogLevel.Debug {
+    return `DEBUG`;
+  } else if level == LogLevel.Warn {
+    return `WARNING`;
+  } else if level == LogLevel.Error {
+    return `ERROR`;
+  } else {
+    return `UNKNOWN`;
+  };
+};
+
+private LogLevel logLevelFromString(string level) {
+  if level == "INFO" {
+    return LogLevel.Info;
+  } else if level == "DEBUG" {
+    return LogLevel.Debug;
+  } else if level == "WARNING" {
+    return LogLevel.Warn;
+  } else if level == "ERROR" {
+    return LogLevel.Error;
+  } else {
+    return LogLevel.Info;
+  };
+};
+
+// Logger singleton
+class Logger {
+  public mutable LogLevel level;
+  
+  Logger init() {
+    panic("Logger is a singleton and should not be instantiated");
+  };
+
+  public bool log(LogLevel level, string message) {
+    if level >= my.level {
+      string lls = logLevelToString(level);
+      let now = dt.Now();
+      string date_string = `{now.getYear()}-{now.getMonth()}-{now.getDay()} {now.getHour()}:{now.getMinute()}:{now.getSecond()}`;
+      str.print(`[{date_string}] [{lls}] {message}\n`);
+      return true;
+    };
+
+    return false;
+  };
+};
+
+mutable Logger logger = NULL;
+
+export fn getLogger() -> Logger {
+  if logger == NULL {
+    logger = malloc(Logger);
+    adr level = sys.envVar("LOG_LEVEL");
+    logger.level = logLevelFromString(
+      if level == NULL "INFO" else level
+    );
+  };
+  return logger;
+};

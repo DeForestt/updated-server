@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AFlat Sandbox - updated-server</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page sandbox-page">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link" href="/tutorial">Tutorial</a>
+          <a class="nav-link" href="/examples">Examples</a>
+          <a class="nav-link active" href="/sandbox">Sandbox</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">Live runner</p>
+          <h1>Compile and run an AFlat main file</h1>
+          <p class="lead">
+            Paste a complete <code>main.af</code> file, press Run, and the server will spin up an
+            isolated Docker sandbox that builds and executes it with the AFlat toolchain.
+          </p>
+          <p class="powered">
+            The sandbox uses the same Dockerfile.sandbox image that ships in this repo, so whatever
+            works here will work locally too.
+          </p>
+        </div>
+      </header>
+
+      <section class="panel sandbox-panel">
+        <div class="sandbox-intro">
+          <h2>Editor</h2>
+          <p>
+            The snippet must include its own `.needs` declarations and a `main` function. We mount it
+            as <code>src/main.af</code>, call <code>aflat build</code>, and stream STDOUT below.
+          </p>
+        </div>
+        <form class="sandbox-form" id="sandbox-form">
+          <label for="sandbox-code">Source (main.af)</label>
+          <textarea id="sandbox-code" name="code" spellcheck="false">.needs &lt;std&gt;
+import {print} from "String" under str;
+
+fn main() -> int {
+    str.print("Hello from the sandbox!\n");
+    return 0;
+};
+</textarea>
+          <div class="sandbox-actions">
+            <button class="pill" id="sandbox-run" type="submit">Run code</button>
+            <button class="ghost" id="sandbox-reset" type="button">Reset sample</button>
+          </div>
+        </form>
+        <div class="sandbox-output">
+          <div class="output-header">
+            <h3>Output</h3>
+            <span class="output-status" id="sandbox-status">Idle</span>
+          </div>
+          <pre id="sandbox-output">Click "Run code" to see stdout...</pre>
+        </div>
+        <div class="sandbox-snippets">
+          <h3>Need inspiration?</h3>
+          <div class="snippet-buttons">
+            <button class="ghost" data-snippet="hello">Hello world</button>
+            <button class="ghost" data-snippet="dice">Random dice</button>
+            <button class="ghost" data-snippet="error">Intentional failure</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        updated-server - Sandbox requests fan out to Docker and stream real build logs
+      </footer>
+    </div>
+    <script defer src="/sandbox.js"></script>
+  </body>
+</html>

@@ -1,0 +1,2082 @@
+Unknown chunk type:
+{'header': '# updated-server', 'content': '\nThis project was generated with the AFlat toolchain. Use the commands below to build, run, test, and explore the codebase.\n\n'}
+
+Unknown chunk type:
+{'header': '## Build & Run', 'content': '- `aflat build` - compile sources defined in `aflat.cfg`.\n- `aflat run` - build and execute the resulting binary.\n- `aflat test` - build and run the configured test target.\n\n'}
+
+Unknown chunk type:
+{'header': '## Inspecting Code', 'content': '- `aflat docs src/main.af` lists classes, unions, transforms, and functions in this project.\n- `aflat docs String` explores a standard library module.\n\n'}
+
+Unknown chunk type:
+{'header': '### Creating modules', 'content': 'Use `aflat module <module name>` to scaffold `src/<module name>/mod.af` and automatically register it under [dependencies]. For single files, run `aflat file <name>`.\n\n'}
+
+Unknown chunk type:
+{'header': '### Standard library overview', 'content': 'AFlat ships a batteries-included standard library under `libraries/std`. The modules below are the most commonly used building blocks:\n\n'}
+
+Unknown chunk type:
+{'header': '#### Runtime & strings', 'content': "- `std` - Arena allocator, `malloc`/`free`, `memcpy`, `panic`, `sleep`, and other intrinsics (libraries/std/src/std.af).\n- `std-cmp` - Compatibility shim that swaps in libc memory helpers plus panic/assert when the arena can't be used (libraries/std/src/std-cmp.af).\n- `Memory` - RefCounted base class alongside the generic `Box`/`wrap` helpers for owning values (libraries/std/src/Memory.af).\n- `String` - Assembly-backed string primitive covering allocation, slicing, iteration, comparisons, casing, and conversions (libraries/std/src/String.af).\n- `strings` - Standalone utilities such as `len`, concat, ASCII helpers, and int/float parsing/formatting (libraries/std/src/strings.af).\n- `System` - Thin syscall wrappers for `execve`, `exec`, shell execution, and environment-variable helpers (libraries/std/src/System.af).\n\n"}
+
+Unknown chunk type:
+{'header': '#### Numerics & IO', 'content': '- `math` - Numeric helpers including `Random`, integer/float exponentiation, square roots, conversions, and absolute values (libraries/std/src/math.af).\n- `io` - Terminal IO functions for reading strings, printing chars/ints/hex, and emitting ANSI-colored output (libraries/std/src/io.af).\n- `files` - File descriptor wrapper with `FileError`/`ReadError`, buffered reads, iterators, and write helpers (libraries/std/src/files.af).\n- `DateTime` - Epoch-based `DateTime` struct with parsing, getters, formatting, and day-of-week math (libraries/std/src/DateTime.af).\n\n'}
+
+Unknown chunk type:
+{'header': '#### Collections & iteration', 'content': '- `Collections` - Generic `List` implementation with push/pop/find helpers and bounds-checked access (libraries/std/src/Collections.af).\n- `Collections/Vector` - Type-parametric `vector` supporting copy/move semantics, iterators, sorting, and optional accessors (libraries/std/src/Collections/Vector.af).\n- `Collections/unordered_map` - Hash-tree-backed associative container with `set`/`get`/`keys` and Option-aware lookups (libraries/std/src/Collections/unordered_map.af).\n- `Collections/Iterator` - Base iterator abstraction plus `Next`/`Peek` decorators to wire callbacks (libraries/std/src/Collections/Iterator.af).\n- `Collections/Enumerator` - Adds index-aware enumeration and exposes the numeric `Range` iterator (libraries/std/src/Collections/Enumerator.af).\n- `Collections/Scroller` - List-backed iterator that yields sequential elements with peek support (libraries/std/src/Collections/Scroller.af).\n- `Collections/Tuple` - Value-type tuples with ownership-safe destruction and `make_tuple` helper (libraries/std/src/Collections/Tuple.af).\n\n'}
+
+Unknown chunk type:
+{'header': '#### Data modeling & serialization', 'content': '- `JSON` - Tagged union covering JSON primitives, casting helpers, mutation, and pretty printing (libraries/std/src/JSON.af).\n- `JSON/Parse` - Wrapper that routes to `JSON.parse` for turning strings into JSON values (libraries/std/src/JSON/Parse.af).\n- `JSON/Property` - Reserved module for future JSON/property bindings (libraries/std/src/JSON/Property.af).\n\n'}
+
+Unknown chunk type:
+{'header': '#### HTTP & networking', 'content': '- `HTTP` - HTTP errors, verb enum, request parser, `HTTPMessage`/`HTTPResponse`, and `listen` helper (libraries/std/src/HTTP.af).\n- `HTTP/Endpoint` - Endpoint wrapper/registry plus pluggable NotFound handler (libraries/std/src/HTTP/Endpoint.af).\n- `HTTP/Endpoints` - Sugar classes for registering GET/POST/PUT/DELETE/etc. handlers (libraries/std/src/HTTP/Endpoints.af).\n- `HTTP/Server` - Middleware-aware server that dispatches endpoints, supports wildcards, and formats error responses (libraries/std/src/HTTP/Server.af).\n- `HTTP/Middleware` - Before/after middleware registration helper applied per request (libraries/std/src/HTTP/Middleware.af).\n- `request.c` - C shim exposing `request`, `_aflat_server_spinUp`, and `serve` socket utilities (libraries/std/src/request.c).\n\n'}
+
+Unknown chunk type:
+{'header': '#### Utility types & error handling', 'content': "- `Utils/Option` - Ref-counted Option class with `resolve`, `match`, and defaulting helpers (libraries/std/src/Utils/Option.af).\n- `Utils/option` - Lightweight union mirroring Rust's Option with `Some`/`None` constructors (libraries/std/src/Utils/option.af).\n- `Utils/Result` - Class-based result value for bridging APIs that expect dynamic success/error payloads (libraries/std/src/Utils/Result.af).\n- `Utils/result` - Rust-style `result<T>` union with ergonomic constructors and unwrap helpers (libraries/std/src/Utils/result.af).\n- `Utils/Error` - Base `Error` class with type metadata, render hooks, and pattern matching (libraries/std/src/Utils/Error.af).\n- `Utils/Error/Render` - Decorator that lets errors plug in a render callback (libraries/std/src/Utils/Error/Render.af).\n\n"}
+
+Unknown chunk type:
+{'header': '#### Utility infrastructure & patterns', 'content': '- `Utils/Functions` - Capturing function wrapper that invokes stored callbacks with optional captures (libraries/std/src/Utils/Functions.af).\n- `Utils/Defer` - RAII helper that runs a `Function` when the object leaves scope unless dismissed (libraries/std/src/Utils/Defer.af).\n- `Utils/Map` - Tree-backed map with hashing, normalization, and Option-returning lookups (libraries/std/src/Utils/Map.af).\n- `Utils/Object` - Dynamic object base with type tagging, validation hooks, and match support (libraries/std/src/Utils/Object.af).\n- `Utils/Properties` - Property decorators (`computed`, `readonly`, `lazy`, `observable`, `clamped`, `with`) plus supporting classes (libraries/std/src/Utils/Properties.af).\n- `Utils/Observable` - Observer list that notifies subscribers when events fire (libraries/std/src/Utils/Observable.af).\n\n'}
+
+Unknown chunk type:
+{'header': '#### Tooling & frameworks', 'content': '- `ATest` - BDD-style testing DSL with fixtures, describe contexts, hooks, and reporting helpers (libraries/std/src/ATest.af).\n- `concurrency` - Process/thread abstractions (`Process`, `MProcess`), message pipes, and `AsyncResult` handles (libraries/std/src/concurrency.af).\n- `CLArgs` - Command-line parser with long/short flags, typed values, validation, and help text (libraries/std/src/CLArgs.af).\n- `Web/Content` - File-backed templating utility that applies bindings before rendering (libraries/std/src/Web/Content.af).\n- `Web/Content/Bind` - Binding helper that registers template placeholders and preprocessors (libraries/std/src/Web/Content/Bind.af).\n\n'}
+
+Unknown chunk type:
+{'header': '## Refreshing This README', 'content': 'Run `aflat readme [path] [name]` to regenerate these instructions for any folder.\n\n'}
+
+File: flat_log.aflat.cfg
+Content:
+; Aflat Config File
+[build]
+test = test/test
+
+[dependencies]
+flatlog = "./src/mod.af"
+Logger = "./src/Logger/mod.af"
+
+
+File: Dockerfile
+Content:
+# Use the latest Ubuntu image
+FROM ubuntu:latest
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    g++ \
+    cmake \
+    git \
+    libboost-all-dev \
+    bash \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone and build AFlat using the official workflow
+ENV AFLAT_ROOT=/root/.aflat/aflat
+RUN mkdir -p /root/.aflat \
+    && git clone https://github.com/DeForestt/aflat.git ${AFLAT_ROOT}
+
+RUN cmake -S ${AFLAT_ROOT} -B ${AFLAT_ROOT}/build -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build ${AFLAT_ROOT}/build --target aflat \
+    && cd ${AFLAT_ROOT} && bash rebuild-libs.sh
+
+ENV PATH=${AFLAT_ROOT}/bin:$PATH
+
+# Prepare the project directory
+RUN mkdir /project
+WORKDIR /project
+
+# Copy project files
+COPY . .
+
+# Expose port 8080 for the AFlat server
+EXPOSE 8080
+
+# Build the project with the freshly built aflat
+RUN aflat build
+
+# Set the entry point to run the Aflat project
+ENTRYPOINT ["./bin/a.out"]
+
+
+File: compact.yml
+Content:
+repo_path: /home/dthompson/repos/updated-server
+output_dir: /home/dthompson/repos/updated-server/compact
+max_words: 200000
+max_file_size: 10485760 # 10 MB
+skip_patterns:
+  - "*.log"
+  - "*.tmp"
+skip_dirs:
+  - "__pycache__"
+  - "node_modules"
+verbose: false
+
+
+File: aflat.cfg
+Content:
+[build]
+main = main
+test = test/test
+[dependencies]
+flat_log = "https://github.com/DeForestt/flat_log.git"
+UI/Index = "./src/UI/Index/mod.af"
+UI/Tutorial = "./src/UI/Tutorial/mod.af"
+UI/Examples = "./src/UI/Examples/mod.af"
+UI/Assets/IndexJS = "./src/UI/Assets/IndexJS/mod.af"
+UI/Assets/Styles = "./src/UI/Assets/Styles/mod.af"
+
+
+File: fly.toml
+Content:
+# fly.toml app configuration file generated for aflat-web on 2026-02-23T19:03:50-05:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'aflat-web'
+primary_region = 'ewr'
+
+[build]
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpus = 1
+  memory_mb = 1024
+
+
+File: .gitignore
+Content:
+# AFlat build artifacts
+/bin/
+/.aflat/
+/.cache/
+/head/
+
+# Editor/OS noise
+.DS_Store
+*.swp
+
+
+File: main.af
+Content:
+.needs <std>
+import {print} from "String" under str;
+import string from "String";
+import Server from "HTTP/Server";
+import Middleware from "HTTP/Middleware";
+import HTTPMessage, HTTPResponse, NotImplementedError, NotFoundError from "HTTP";
+import result from "Utils/result";
+import {accept, reject, resultWrapper} from "Utils/result" under res;
+import GET, POST, PUT, DELETE from "HTTP/Endpoints";
+import {info} from "./flat_log" under log;
+import unordered_map from "Collections/unordered_map";
+import option from "Utils/option";
+import {Some, None, optionWrapper} from "Utils/option" under opt;
+import {methodToString} from "HTTP" under http;
+import Content from "Web/Content";
+import Index from "./UI/Index";
+import Tutorial from "./UI/Tutorial";
+import Examples from "./UI/Examples";
+import IndexJS from "./UI/Assets/IndexJS";
+import Styles from "./UI/Assets/Styles";
+
+class TutorialStep signs Content {
+	fn init(const string filePath) {
+		my.loadFile(filePath.cstr());
+		return my;
+	};
+};
+
+class AflatServer signs Server {
+
+	fn attachContentLength(HTTPResponse resp) {
+		const string body = resp.getBody();
+		resp.addHeader("Content-Length", `{body.len()}`.cstr());
+	};
+
+	fn respond(HTTPResponse resp, const adr contentType) {
+		resp.addHeader("Content-Type", contentType);
+		my.attachContentLength(resp);
+		return res.accept(resp);
+	};
+
+	fn logRequest() -> unordered_map::<adr> : Middleware {
+		unordered_map::<adr> val = {
+			"before": fn (Server __s, HTTPMessage &&req) {
+				log.info(`[{http.methodToString(req.method)}] {req.endpoint}\n`);
+				return req;
+			},
+			"after": fn (Server __s, HTTPMessage __req, HTTPResponse &&r) {
+				log.info(`\t{r.getStatusCode()} {r.getStatusMessage()}\n`);
+				return r;
+			}
+		};
+		return val;
+	};
+
+	fn index() : GET("/") {
+		Index home = new Index();
+		let resp = new HTTPResponse(home.render(), "200", "OK");
+		return my.respond(resp, "text/html");
+	};
+
+	fn tutorial() : GET("/tutorial") {
+		Tutorial page = new Tutorial();
+		let resp = new HTTPResponse(page.render(), "200", "OK");
+		return my.respond(resp, "text/html");
+	};
+
+	fn examples() : GET("/examples") {
+		Examples page = new Examples();
+		let resp = new HTTPResponse(page.render(), "200", "OK");
+		return my.respond(resp, "text/html");
+	};
+
+	fn assetScript() : GET("/index.js") {
+		IndexJS script = new IndexJS();
+		let resp = new HTTPResponse(script.render(), "200", "OK");
+		return my.respond(resp, "application/javascript");
+	};
+
+	fn assetStyles() : GET("/styles.css") {
+		Styles styles = new Styles();
+		let resp = new HTTPResponse(styles.render(), "200", "OK");
+		return my.respond(resp, "text/css");
+	};
+
+
+	fn tutorialStep(HTTPMessage msg, ? string stepId) : GET("/tutorial/steps/:*") {
+		if stepId.isNone() {
+			const string body = new string("Step not found");
+			let resp = new HTTPResponse(body, "404", "Not Found");
+			return my.respond(resp, "text/plain");
+		};;
+		const option::<string> maybePath = my.stepPath(stepId.or(``));
+		match maybePath {
+			Some(path) => {
+				TutorialStep snippet = new TutorialStep(path);
+				let resp = new HTTPResponse(snippet.render(), "200", "OK");
+				return my.respond(resp, "text/html");
+			},
+			None => {
+				const string body = new string("Step not found");
+				let resp = new HTTPResponse(body, "404", "Not Found");
+				return my.respond(resp, "text/plain");
+			}
+		};
+	};
+
+	fn stepPath(const string step) -> option::<string> {
+		if step == "installation" return opt.Some::<string>(new string("./public/tutorial/steps/installation.html"));
+		if step == "first-project" return opt.Some::<string>(new string("./public/tutorial/steps/first-project.html"));
+		if step == "customizing" return opt.Some::<string>(new string("./public/tutorial/steps/customizing.html"));
+		if step == "strings" return opt.Some::<string>(new string("./public/tutorial/steps/strings.html"));
+		if step == "conditionals" return opt.Some::<string>(new string("./public/tutorial/steps/conditionals.html"));
+		if step == "guessing" return opt.Some::<string>(new string("./public/tutorial/steps/guessing.html"));
+		if step == "loops" return opt.Some::<string>(new string("./public/tutorial/steps/loops.html"));
+		if step == "random" return opt.Some::<string>(new string("./public/tutorial/steps/random.html"));
+		if step == "classes" return opt.Some::<string>(new string("./public/tutorial/steps/classes.html"));
+		if step == "methods" return opt.Some::<string>(new string("./public/tutorial/steps/methods.html"));
+		if step == "modules" return opt.Some::<string>(new string("./public/tutorial/steps/modules.html"));
+		if step == "roster" return opt.Some::<string>(new string("./public/tutorial/steps/roster.html"));
+		if step == "ownership" return opt.Some::<string>(new string("./public/tutorial/steps/ownership.html"));
+		if step == "results" return opt.Some::<string>(new string("./public/tutorial/steps/results.html"));
+		if step == "templates" return opt.Some::<string>(new string("./public/tutorial/steps/templates.html"));
+		if step == "wrapup" return opt.Some::<string>(new string("./public/tutorial/steps/wrapup.html"));
+		return opt.None::<string>();
+	};
+
+
+	AflatServer init() {
+		return my;
+	};
+};
+
+
+fn main() {
+	let server = AflatServer();
+	server.listen();
+	return 0;
+};
+
+
+File: test.af
+Content:
+.needs <std>
+.needs <test>
+
+import {beforeAll, beforeEach, afterEach, afterAll, describe, it, itSkip, fix, getFixture, assertEqual, assertTrue, summary} from "ATest" under test;
+
+class HookState {
+    mutable bool beforeAllRan = false;
+    mutable int beforeEachCount = 0;
+    mutable int afterEachCount = 0;
+    mutable bool afterAllRan = false;
+
+    fn init() -> Self {
+        return my;
+    };
+};
+
+fn main() -> int {
+    test.fix("hookState", fn () {
+        return new HookState();
+    });
+
+    test.describe("Hooks and fixtures", fn () {
+        test.beforeAll(fn () {
+            HookState state = test.getFixture("hookState");
+            state.beforeAllRan = true;
+        });
+
+        test.beforeEach(fn () {
+            HookState state = test.getFixture("hookState");
+            state.beforeEachCount = state.beforeEachCount + 1;
+        });
+
+        test.afterEach(fn () {
+            HookState state = test.getFixture("hookState");
+            state.afterEachCount = state.afterEachCount + 1;
+        });
+
+        test.afterAll(fn () {
+            HookState state = test.getFixture("hookState");
+            state.afterAllRan = true;
+        });
+
+        test.it("tracks hook counts", fn () {
+            HookState state = test.getFixture("hookState");
+            test.assertTrue(state.beforeAllRan);
+            test.assertEqual(state.beforeEachCount, 1);
+            test.assertEqual(state.afterEachCount, 0);
+        });
+
+        test.itSkip("unimplemented behavior", "demonstration");
+    });
+
+    test.describe("Simple assertions", fn () {
+        test.it("compares strings", fn () {
+            test.assertTrue(`aflat` == `aflat`);
+        });
+
+        test.it("adds numbers", fn () {
+            test.assertEqual(2 + 2, 4);
+        });
+    });
+
+    test.summary();
+    return 0;
+};
+
+
+File: mod.af
+Content:
+.needs <std>
+
+import string from "String";
+import { print } from "String" under str;
+import {envVar} from "System" under sys;
+import { Now } from "DateTime" under dt;
+import DateTime from "DateTime";
+import LogLevel, Logger from "./Logger";
+import { getLogger } from "./Logger" under logger;
+
+export fn info(const string message) {
+  return logger.getLogger().log(LogLevel.Info, message);
+};
+
+export fn debug(const string message) {
+  return logger.getLogger().log(LogLevel.Debug, message);
+};
+
+export fn warning(const string message) {
+  return logger.getLogger().log(LogLevel.Warn, message);
+};
+
+export fn error(const string message) {
+  return logger.getLogger().log(LogLevel.Error, message);
+};
+
+File: test.af
+Content:
+.needs <std>
+
+import {case, report, require} from "ATest.af" under test;
+import string from "String";
+import TestSuite from "ATest.af";
+import {flat_log} from "./src/mod" under lib;
+
+bool test_flat_log() : test.case("test_flat_log") {
+	 return test.require(lib.flat_log(1, 2) == 3, "1 + 2 = 3");
+};
+
+int main() {
+	TestSuite suite = new TestSuite("flat_log Test Suite");
+	suite.addCase(test_flat_log);
+	suite.run();
+	test.report();
+	return 0;
+};
+
+
+File: mod.af
+Content:
+.needs <std>
+import string from "String";
+import { print } from "String" under str;
+import {envVar} from "System" under sys;
+import { Now } from "DateTime" under dt;
+import DateTime from "DateTime";
+
+enum LogLevel {
+  Debug,
+  Info,
+  Warn,
+  Error,
+};
+
+private string logLevelToString(LogLevel level) {
+  if level == LogLevel.Info {
+    return `INFO`;
+  } else if level == LogLevel.Debug {
+    return `DEBUG`;
+  } else if level == LogLevel.Warn {
+    return `WARNING`;
+  } else if level == LogLevel.Error {
+    return `ERROR`;
+  } else {
+    return `UNKNOWN`;
+  };
+};
+
+private LogLevel logLevelFromString(string level) {
+  if level == "INFO" {
+    return LogLevel.Info;
+  } else if level == "DEBUG" {
+    return LogLevel.Debug;
+  } else if level == "WARNING" {
+    return LogLevel.Warn;
+  } else if level == "ERROR" {
+    return LogLevel.Error;
+  } else {
+    return LogLevel.Info;
+  };
+};
+
+// Logger singleton
+class Logger {
+  public mutable LogLevel level;
+  
+  Logger init() {
+    panic("Logger is a singleton and should not be instantiated");
+  };
+
+  public bool log(LogLevel level, string message) {
+    if level >= my.level {
+      string lls = logLevelToString(level);
+      let now = dt.Now();
+      string date_string = `{now.getYear()}-{now.getMonth()}-{now.getDay()} {now.getHour()}:{now.getMinute()}:{now.getSecond()}`;
+      str.print(`[{date_string}] [{lls}] {message}\n`);
+      return true;
+    };
+
+    return false;
+  };
+};
+
+mutable Logger logger = NULL;
+
+export fn getLogger() -> Logger {
+  if logger == NULL {
+    logger = malloc(Logger);
+    adr level = sys.envVar("LOG_LEVEL");
+    logger.level = logLevelFromString(
+      if level == NULL "INFO" else level
+    );
+  };
+  return logger;
+};
+
+File: mod.af
+Content:
+.needs <std>
+import Content from "Web/Content";
+
+class Tutorial signs Content {
+    fn init() {
+        my.loadFile("./public/tutorial.html");
+    };
+};
+
+
+File: mod.af
+Content:
+.needs <std>
+import Content from "Web/Content";
+
+class Index signs Content {
+    fn init() {
+        my.loadFile("./public/index.html");
+    };
+};
+
+File: mod.af
+Content:
+.needs <std>
+import Content from "Web/Content";
+
+class IndexJS signs Content {
+    fn init() {
+        my.loadFile("./public/index.js");
+    };
+};
+
+
+File: mod.af
+Content:
+.needs <std>
+import Content from "Web/Content";
+
+class Styles signs Content {
+    fn init() {
+        my.loadFile("./public/styles.css");
+    };
+};
+
+
+File: mod.af
+Content:
+.needs <std>
+import Content from "Web/Content";
+
+class Examples signs Content {
+    fn init() {
+        my.loadFile("./public/examples.html");
+    };
+};
+
+
+File: styles.css
+Content:
+:root {
+  --bg: #04050b;
+  --surface: #0c1220;
+  --panel: #111a2f;
+  --panel-alt: #1a2540;
+  --text: #f8fbff;
+  --muted: #afc2dd;
+  --accent: #7dd3fc;
+  --accent-strong: #c084fc;
+  --border: rgba(148, 163, 184, 0.35);
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, rgba(125, 211, 252, 0.25), transparent 45%),
+    radial-gradient(circle at 20% 20%, rgba(192, 132, 252, 0.25), transparent 45%), var(--bg);
+  color: var(--text);
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.nav-brand {
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.nav-link {
+  border-radius: 999px;
+  padding: 0.4rem 0.95rem;
+  border: 1px solid transparent;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  border-color: rgba(125, 211, 252, 0.5);
+  background: rgba(125, 211, 252, 0.15);
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.hero {
+  background: linear-gradient(135deg, rgba(17, 26, 47, 0.95), rgba(17, 26, 47, 0.8));
+  border-radius: 1.75rem;
+  padding: 2.5rem;
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  box-shadow: 0 30px 80px rgba(4, 5, 11, 0.6);
+}
+
+.hero-content {
+  max-width: 640px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+h1 {
+  margin: 0.4rem 0 0.8rem;
+  font-size: clamp(2.4rem, 4vw, 3.5rem);
+}
+
+.lead {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.powered {
+  margin: 0.6rem 0 0;
+  color: #e0ecff;
+  font-size: 0.95rem;
+}
+
+.hero-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pill {
+  background: var(--accent);
+  border: none;
+  color: #031425;
+  border-radius: 999px;
+  padding: 0.65rem 1.35rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(125, 211, 252, 0.45);
+}
+
+.ghost {
+  border-radius: 999px;
+  padding: 0.65rem 1.35rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.hero-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.meta-card {
+  background: rgba(3, 9, 20, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.meta-card span {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+}
+
+.meta-card strong {
+  display: block;
+  font-size: 1.2rem;
+  margin: 0.35rem 0 0.2rem;
+}
+
+.meta-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.panel {
+  background: var(--panel);
+  border-radius: 1.5rem;
+  border: 1px solid var(--border);
+  padding: 1.75rem;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.08);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.info-grid article {
+  background: var(--panel-alt);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.info-grid h2 {
+  margin-top: 0;
+}
+
+.info-grid p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.panel-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.command-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.command-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.command-button {
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  padding: 0.85rem 1rem;
+  background: rgba(8, 12, 24, 0.65);
+  color: var(--text);
+  font-size: 0.98rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border 0.2s, color 0.2s, background 0.2s;
+}
+
+.command-button.active {
+  border-color: var(--accent-strong);
+  background: rgba(192, 132, 252, 0.2);
+  color: var(--accent);
+}
+
+.command-display {
+  border-radius: 1rem;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  background: #030812;
+  padding: 1.25rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.command-label {
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.command-tip {
+  margin: 0;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-pill {
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.filter-pill.active {
+  background: rgba(125, 211, 252, 0.2);
+  border-color: var(--accent);
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+}
+
+.module-card {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(10, 16, 28, 0.9);
+  transition: transform 0.2s ease, border 0.2s ease;
+}
+
+.module-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(192, 132, 252, 0.8);
+}
+
+.module-card.hidden {
+  display: none;
+}
+
+.module-card h3 {
+  margin: 0 0 0.4rem;
+}
+
+.module-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.timeline ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: cadence;
+}
+
+.timeline li {
+  counter-increment: cadence;
+  padding: 1rem 1rem 1rem 3rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(10, 16, 28, 0.8);
+  position: relative;
+  margin-bottom: 0.8rem;
+}
+
+.timeline li::before {
+  content: counter(cadence);
+  position: absolute;
+  left: 1rem;
+  top: 1.1rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #04131f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.timeline strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.timeline span {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding-top: 1rem;
+}
+
+.tutorial { gap: 1.5rem; }
+.tutorial .hero { margin-bottom: 0; }
+
+.tutorial-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 260px) 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.step-menu {
+  background: var(--panel);
+  border-radius: 1.2rem;
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.step-menu h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.step-button {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  padding: 0.55rem 0.75rem;
+  background: rgba(12, 18, 32, 0.6);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+
+.step-button.active {
+  border-color: var(--accent-strong);
+  background: rgba(192, 132, 252, 0.18);
+  color: var(--accent);
+}
+
+.tutorial-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tutorial-section {
+  background: var(--panel);
+  border-radius: 1.25rem;
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.05);
+}
+
+.tutorial-section h2 {
+  margin-top: 0;
+}
+
+.tutorial-step { display: none; }
+.tutorial-step.active { display: block; }
+
+.step-navigation {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.prev-step,
+.next-step {
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  padding: 0.55rem 1.4rem;
+  cursor: pointer;
+}
+
+.prev-step {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  color: var(--text);
+}
+
+.next-step {
+  background: var(--accent);
+  color: #031425;
+  margin-left: auto;
+}
+
+.tutorial-section pre {
+  background: #020615;
+  border-radius: 0.85rem;
+  padding: 1rem;
+  overflow-x: auto;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  color: #cbd5ff;
+}
+
+.tutorial-section code {
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace;
+  font-size: 0.92rem;
+}
+
+.examples-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.example-card {
+  background: var(--panel-alt);
+  border-radius: 1.2rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.example-card pre {
+  margin: 0;
+}
+
+.tutorial-section ul,
+.tutorial-section ol {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 1.8rem;
+  }
+
+  .page {
+    padding: 2rem 1rem 3rem;
+  }
+
+  .tutorial-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .step-menu {
+    position: static;
+  }
+}
+
+
+File: index.html
+Content:
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>updated-server - Welcome Hub</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link active" href="/">Home</a>
+          <a class="nav-link" href="/tutorial">Tutorial</a>
+          <a class="nav-link" href="/examples">Examples</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">AFlat Toolchain</p>
+          <h1>Welcome to the AFlat Programming Language</h1>
+          <p class="lead" id="welcome-line">
+            A bigger, bolder sandbox for staging AFlat experiments, creative endpoints, and HTTP
+            drills.
+          </p>
+          <p class="powered">
+            This entire site is powered by the AFlat stack — rendered via Web/Content and served by
+            AflatServer.
+          </p>
+          <div class="hero-actions">
+            <button class="pill" data-message="Compile everything with 'aflat build'.">Build</button>
+            <button class="pill" data-message="Boot the server locally using 'aflat run'.">Run</button>
+            <button class="pill" data-message="Guard regressions with 'aflat test'.">Test</button>
+            <a class="ghost" href="#modules">Explore modules</a>
+          </div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card">
+            <span>Stack</span>
+            <strong>AFlat - HTTP</strong>
+            <p>Single binary server with Content-powered UI.</p>
+          </div>
+          <div class="meta-card">
+            <span>Entry point</span>
+            <strong>src/main.af</strong>
+            <p>AflatServer handles routing plus static assets.</p>
+          </div>
+          <div class="meta-card">
+            <span>Quickstart</span>
+            <strong>aflat run</strong>
+            <p>Launch and hit http://localhost:8000/.</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="panel info-grid">
+        <article>
+          <h2>Why this repo</h2>
+          <p>
+            updated-server ships as a ready-to-build reference. Clone it to demo HTTP endpoints,
+            content rendering, and std library workflows without scaffolding.
+          </p>
+        </article>
+        <article>
+          <h2>What's inside</h2>
+          <p>
+            A curated README walk-through, minimal server wiring, and an expressive landing page you
+            can tweak or replace as you prototype.
+          </p>
+        </article>
+        <article>
+          <h2>Next moves</h2>
+          <p>
+            Fork, create a module, and wire a new endpoint. updated-server thrives when you treat it
+            like a sketchpad.
+          </p>
+        </article>
+      </section>
+
+      <section class="panel command-center" id="commands">
+        <div class="panel-header">
+          <h2>Command deck</h2>
+          <p>Highlight a command to refresh the quick brief.</p>
+        </div>
+        <div class="command-grid">
+          <div class="command-list">
+            <button class="command-button"
+              data-title="aflat build"
+              data-description="Compile sources defined in aflat.cfg."
+              data-tip="Outputs bin/a.out ready for the next run step."
+            >aflat build</button>
+            <button class="command-button"
+              data-title="aflat run"
+              data-description="Build and boot updated-server on localhost:8000."
+              data-tip="Keep a terminal open so logs stream as you browse."
+            >aflat run</button>
+            <button class="command-button"
+              data-title="aflat test"
+              data-description="Execute test/test.af and confirm regressions are caught."
+              data-tip="Great for validating new modules before merging."
+            >aflat test</button>
+            <button class="command-button"
+              data-title="aflat docs src/main.af"
+              data-description="Inspect the classes and functions inside AflatServer."
+              data-tip="Use docs to onboard newcomers or recall signatures quickly."
+            >aflat docs src/main.af</button>
+            <button class="command-button"
+              data-title="aflat docs String"
+              data-description="Review the std String module for slicing, casing, and conversions."
+              data-tip="String helpers power most templating tricks."
+            >aflat docs String</button>
+            <button class="command-button"
+              data-title="aflat module <name>"
+              data-description="Scaffold src/<name>/mod.af and register it under dependencies."
+              data-tip="Perfect for spinning up UI components or log utilities."
+            >aflat module &lt;name&gt;</button>
+          </div>
+          <div class="command-display" aria-live="polite">
+            <p class="command-label" id="command-title">aflat build</p>
+            <p id="command-description">Compile sources defined in aflat.cfg.</p>
+            <p class="command-tip" id="command-tip">Outputs bin/a.out ready for the next run step.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel modules" id="modules">
+        <div class="panel-header">
+          <h2>Std library flight plan</h2>
+          <p>Select a filter to view the relevant module clusters cited in README.md.</p>
+        </div>
+        <div class="filter-row">
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="runtime">Runtime</button>
+          <button class="filter-pill" data-filter="collections">Collections</button>
+          <button class="filter-pill" data-filter="http">HTTP</button>
+          <button class="filter-pill" data-filter="utility">Utilities</button>
+        </div>
+        <div class="module-grid">
+          <article class="module-card" data-group="runtime">
+            <h3>Runtime & strings</h3>
+            <p>std, std-cmp, Memory, String, strings, System</p>
+          </article>
+          <article class="module-card" data-group="runtime">
+            <h3>Numerics & IO</h3>
+            <p>math, io, files, DateTime</p>
+          </article>
+          <article class="module-card" data-group="collections">
+            <h3>Collections toolkit</h3>
+            <p>Collections, Vector, Iterator, Enumerator, Scroller, Tuple, unordered_map</p>
+          </article>
+          <article class="module-card" data-group="http">
+            <h3>Networking stack</h3>
+            <p>HTTP core, Endpoint helpers, HTTP/Server, Middleware, request.c</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Data & serialization</h3>
+            <p>JSON, JSON/Parse, JSON/Property</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Result & error helpers</h3>
+            <p>Utils/option, Utils/Option, Utils/result, Utils/Error, Utils/Error/Render</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Productivity suite</h3>
+            <p>Utils/Functions, Defer, Map, Object, Properties, Observable</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Testing & concurrency</h3>
+            <p>ATest, concurrency, CLArgs</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel timeline">
+        <div class="panel-header">
+          <h2>Mission cadence</h2>
+          <p>Use this loop to keep work moving fast.</p>
+        </div>
+        <ol>
+          <li>
+            <strong>Initialize</strong>
+            <span>Run <code>aflat module</code> and make your canvas.</span>
+          </li>
+          <li>
+            <strong>Build & observe</strong>
+            <span>Pair <code>aflat build</code> with logs to stay aware of changes.</span>
+          </li>
+          <li>
+            <strong>Test & review</strong>
+            <span>Lean on <code>aflat test</code> and <code>aflat docs</code> before sharing.</span>
+          </li>
+          <li>
+            <strong>Ship & iterate</strong>
+            <span>Capture new learnings on this page for the next mission.</span>
+          </li>
+        </ol>
+      </section>
+
+      <footer>
+        updated-server - Powered by the AFlat standard library - Built bold on HTML, CSS, and JS
+      </footer>
+    </div>
+    <script defer src="/index.js"></script>
+  </body>
+</html>
+
+
+File: examples.html
+Content:
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AFlat Examples - updated-server</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page tutorial">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link" href="/tutorial">Tutorial</a>
+          <a class="nav-link active" href="/examples">Examples</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">AFlat programming language</p>
+          <h1>Example gallery</h1>
+          <p class="lead">
+            Copy, remix, and extend these focused samples built straight from the tutorial. Each one
+            demonstrates a core part of the language.
+          </p>
+          <p class="powered">
+            Served live from updated-server with AFlat's Web/Content helper, so tweaks show up as soon
+            as you save.
+          </p>
+        </div>
+      </header>
+
+      <section class="tutorial-section">
+        <h2>Quick-start snippets</h2>
+        <div class="examples-grid">
+          <article class="example-card">
+            <h3>Hello world</h3>
+            <p>Minimal entry point with std library and io helper.</p>
+            <pre><code>.needs &lt;std&gt;
+import * from "io" under io;
+
+fn main() -> int {
+    io.print("Hello, world!\n");
+    return 0;
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Personalized greeting</h3>
+            <p>Prompt the user and use string interpolation.</p>
+            <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+
+fn main() -> int {
+    let name = str.readString("Name? ");
+    str.print(`Hello, {name}!\n`);
+    return 0;
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Guarded access</h3>
+            <p>Compare input using if/else.</p>
+            <pre><code>if name == "AFlat" {
+    str.print("Welcome back!\n");
+} else {
+    str.print("Access denied.\n");
+};</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="tutorial-section">
+        <h2>Richer programs</h2>
+        <div class="examples-grid">
+          <article class="example-card">
+            <h3>Guessing game loop</h3>
+            <pre><code>for mutable int i = 0; i &lt; 5; i = i + 1 {
+    let guess = str.readString("Guess: ");
+    let guessInt = guess.toInt()!;
+
+    if guessInt == secret {
+        str.print("You got it!\n");
+        break;
+    } else if guessInt &lt; secret
+        str.print("Too low\n")
+    else
+        str.print("Too high\n");
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Student class</h3>
+            <pre><code>class Student {
+    mutable int id;
+    mutable string name = "";
+    mutable int average;
+
+    fn init(int id, string name, int average) -> Student {
+        my.id = id;
+        my.name = name;
+        my.average = average;
+    };
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Roster printer</h3>
+            <pre><code>let roster = [
+    new Student(1, "John", 90),
+    new Student(2, "Jane", 95)
+];
+
+foreach s in roster {
+    s.printInfo();
+};</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="tutorial-section">
+        <h2>Ownership + result mashup</h2>
+        <pre><code>import {accept, reject} from "Utils/result" under pr;
+
+fn addAssignment(Student &&student, Assignment &&assignment) -> bool! {
+    student.addAssignment($assignment);
+    return true;
+};
+
+fn divide(int a, int b) -> int! {
+    if b == 0
+        return pr.reject::<int>(Error("Cannot divide by zero"));
+    return a / b;
+};</code></pre>
+        <p>
+          These helpers showcase how ownership moves through <code>&amp;&amp;</code> parameters while the
+          <code>!</code> shorthand lets you bubble errors without extra boilerplate.
+        </p>
+      </section>
+
+      <footer>
+        updated-server - AFlat example suite running on the same server that serves this page
+      </footer>
+    </div>
+    <script defer src="/index.js"></script>
+  </body>
+</html>
+
+
+File: index.js
+Content:
+const setupHero = () => {
+  const line = document.getElementById("welcome-line");
+  const heroButtons = Array.from(document.querySelectorAll(".hero .pill[data-message]"));
+  if (!line || !heroButtons.length) return;
+  heroButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const message = button.getAttribute("data-message") || "";
+      line.textContent = message;
+    });
+  });
+};
+
+const setupCommands = () => {
+  const buttons = Array.from(document.querySelectorAll(".command-button"));
+  const title = document.getElementById("command-title");
+  const description = document.getElementById("command-description");
+  const tip = document.getElementById("command-tip");
+  if (!buttons.length || !title || !description || !tip) return;
+
+  const activate = (button) => {
+    buttons.forEach((btn) => btn.classList.toggle("active", btn === button));
+    title.textContent = button.dataset.title || button.textContent;
+    description.textContent = button.dataset.description || "";
+    tip.textContent = button.dataset.tip || "";
+  };
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => activate(button));
+  });
+
+  activate(buttons[0]);
+};
+
+const setupFilters = () => {
+  const filters = Array.from(document.querySelectorAll(".filter-pill"));
+  const cards = Array.from(document.querySelectorAll(".module-card"));
+  if (!filters.length || !cards.length) return;
+
+  const apply = (filter) => {
+    filters.forEach((pill) => pill.classList.toggle("active", pill.dataset.filter === filter));
+    cards.forEach((card) => {
+      const group = card.dataset.group || "all";
+      if (filter === "all" || group === filter) {
+        card.classList.remove("hidden");
+      } else {
+        card.classList.add("hidden");
+      }
+    });
+  };
+
+  filters.forEach((pill) => {
+    pill.addEventListener("click", () => apply(pill.dataset.filter || "all"));
+  });
+
+  apply("all");
+};
+
+const setupTutorialSteps = () => {
+  const buttons = Array.from(document.querySelectorAll(".step-button"));
+  const stage = document.getElementById("tutorial-stage");
+  const prevBtn = document.getElementById("tutorial-prev");
+  const nextBtn = document.getElementById("tutorial-next");
+  if (!buttons.length || !stage || !prevBtn || !nextBtn) return;
+
+  const order = buttons.map((btn) => btn.dataset.step).filter(Boolean);
+  const cache = {};
+  let currentStep = order[0];
+
+  const updateNavState = () => {
+    const index = order.indexOf(currentStep);
+    buttons.forEach((btn) => btn.classList.toggle("active", btn.dataset.step === currentStep));
+    const prevTarget = index > 0 ? order[index - 1] : "";
+    prevBtn.disabled = !prevTarget;
+    prevBtn.dataset.target = prevTarget;
+
+    if (index === order.length - 1) {
+      nextBtn.textContent = "Browse examples";
+      nextBtn.dataset.target = "";
+      nextBtn.dataset.examples = "true";
+    } else {
+      nextBtn.textContent = "Next step";
+      nextBtn.dataset.examples = "false";
+      nextBtn.dataset.target = order[index + 1] || "";
+    }
+  };
+
+  const renderStep = (step, html) => {
+    stage.innerHTML = html;
+    currentStep = step;
+    updateNavState();
+  };
+
+  const loadStep = (step) => {
+    if (cache[step]) {
+      renderStep(step, cache[step]);
+      return;
+    }
+    fetch(`/tutorial/steps/${step}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load tutorial step");
+        return res.text();
+      })
+      .then((html) => {
+        cache[step] = html;
+        renderStep(step, html);
+      })
+      .catch(() => {
+        renderStep(step, '<article class="tutorial-section"><p>Unable to load this step.</p></article>');
+      });
+  };
+
+  const show = (step) => {
+    if (!step || step === currentStep) return;
+    loadStep(step);
+  };
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => show(button.dataset.step || ""));
+  });
+
+  prevBtn.addEventListener("click", () => {
+    const target = prevBtn.dataset.target;
+    if (target) show(target);
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (nextBtn.dataset.examples === "true") {
+      window.location.href = "/examples";
+      return;
+    }
+    const target = nextBtn.dataset.target;
+    if (target) show(target);
+  });
+
+  loadStep(order[0]);
+};
+
+const ready = () => {
+  setupHero();
+  setupCommands();
+  setupFilters();
+  setupTutorialSteps();
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", ready);
+} else {
+  ready();
+}
+
+
+File: tutorial.html
+Content:
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AFlat Tutorial - updated-server</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page tutorial">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link active" href="/tutorial">Tutorial</a>
+          <a class="nav-link" href="/examples">Examples</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">AFlat programming language</p>
+          <h1>First Steps with AFlat</h1>
+          <p class="lead">
+            Click through each stage to install the toolchain, scaffold projects, manipulate strings,
+            build classes, manage ownership, and ship a roster manager.
+          </p>
+          <p class="powered">
+            Every section is served via the AFlat API, so updating a single step hot-reloads the
+            content without redeploying the rest of the page.
+          </p>
+        </div>
+      </header>
+
+      <section class="tutorial-layout">
+        <aside class="step-menu">
+          <h2>Steps</h2>
+          <div class="step-list">
+            <button class="step-button active" data-step="installation">Installation</button>
+            <button class="step-button" data-step="first-project">First project</button>
+            <button class="step-button" data-step="customizing">Make it yours</button>
+            <button class="step-button" data-step="strings">Strings</button>
+            <button class="step-button" data-step="conditionals">Conditionals</button>
+            <button class="step-button" data-step="guessing">Guessing game</button>
+            <button class="step-button" data-step="loops">Loops</button>
+            <button class="step-button" data-step="random">Random numbers</button>
+            <button class="step-button" data-step="classes">Classes</button>
+            <button class="step-button" data-step="methods">Methods & vectors</button>
+            <button class="step-button" data-step="modules">Modules</button>
+            <button class="step-button" data-step="roster">Roster app</button>
+            <button class="step-button" data-step="ownership">Ownership</button>
+            <button class="step-button" data-step="results">result union</button>
+            <button class="step-button" data-step="templates">Templates</button>
+            <button class="step-button" data-step="wrapup">Wrap-up</button>
+          </div>
+        </aside>
+
+        <div class="tutorial-content">
+          <article class="tutorial-section" id="tutorial-stage">
+            <p>Loading tutorial step…</p>
+          </article>
+          <div class="step-navigation">
+            <button class="prev-step" id="tutorial-prev" disabled>Previous</button>
+            <button class="next-step" id="tutorial-next">Next step</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        updated-server - AFlat tutorial served straight from the language itself
+      </footer>
+    </div>
+    <script defer src="/index.js"></script>
+  </body>
+</html>
+
+
+File: customizing.html
+Content:
+<article class="tutorial-section" data-step="customizing">
+  <h2>Making it your own</h2>
+  <p>Add extra prints to personalize the greeting:</p>
+  <pre><code>.needs &lt;std&gt;
+import * from "io" under io;
+
+fn main() -> int {
+    io.print("Hello, world!\n");
+    io.print("From, The aflat Team\n");
+    return 0;
+};</code></pre>
+</article>
+
+
+File: first-project.html
+Content:
+<article class="tutorial-section" data-step="first-project">
+  <h2>First project</h2>
+  <p>Create the tutorial starter:</p>
+  <pre><code>aflat make tutorial</code></pre>
+  <p>Use <code>--lib</code> before <code>make</code> for a library template. The generated folder ships with <code>aflat.cfg</code>, <code>src/main.af</code>, and <code>src/test/test.af</code>.</p>
+  <h3>Adding dependencies</h3>
+  <p>List modules under <code>[dependencies]</code> in <code>aflat.cfg</code>. Run <code>aflat install &lt;git_repo&gt;</code> to clone remote repositories and update the config automatically.</p>
+  <h3>Hello world breakdown</h3>
+  <pre><code>.needs &lt;std&gt;
+import * from "io" under io;
+
+fn main() -> int {
+    io.print("Hello, world!\n");
+    return 0;
+};</code></pre>
+  <ul>
+    <li><code>.needs</code> brings in the std library.</li>
+    <li><code>import</code> exposes <code>io</code> helpers under the <code>io.</code> prefix.</li>
+    <li><code>fn main</code> is the entry point; <code>io.print</code> writes to stdout.</li>
+  </ul>
+</article>
+
+
+File: ownership.html
+Content:
+<article class="tutorial-section" data-step="ownership">
+  <h2>Ownership model</h2>
+  <p>AFlat tracks ownership for heap objects:</p>
+  <ul>
+    <li>Only owned values (from <code>new</code> or <code>&amp;&amp;</code>) can be moved or returned.</li>
+    <li>Use <code>$</code> to transfer ownership.</li>
+    <li><code>&amp;&amp;</code> parameters consume their arguments.</li>
+    <li>Returning fields transfers ownership; avoid double-use after moves.</li>
+  </ul>
+  <pre><code>Expression                   Owned? Requires $?
+---------------------------------------------
+new Foo()                    yes    no
+let f = new Foo()            yes    yes
+someFunc() returning T!      yes    no
+field from owned object      yes    yes
+stack or literal value       no     n/a
+function param (&amp;&amp;)          yes    yes or no (if rvalue)
+</code></pre>
+</article>
+
+
+File: templates.html
+Content:
+<article class="tutorial-section" data-step="templates">
+  <h2>Templates</h2>
+  <p>Prepend <code>types(T)</code> (or multiple names) before template classes/functions. Class templates require explicit instantiation, e.g., <code>vector::&lt;Student&gt;</code>, while functions typically infer the type arguments automatically.</p>
+</article>
+
+
+File: results.html
+Content:
+<article class="tutorial-section" data-step="results">
+  <h2>Error handling with result</h2>
+  <pre><code>import {accept, reject} from "Utils/result" under pr;
+
+fn divide(int a, int b) -> int! {
+    if b == 0
+        return pr.reject::<int>(Error("Cannot divide by zero"));
+    return a / b;
+};
+
+fn main() -> int {
+    match divide(10, 0) {
+        Ok(value) => str.print(`Value: {value}\n`),
+        Err(e) => str.print(`Error: {e}\n`)
+    };
+    return 0;
+};</code></pre>
+  <p>Apply the <code>!</code> shorthand to roster helpers to bubble parse errors from <code>toInt</code>.</p>
+</article>
+
+
+File: modules.html
+Content:
+<article class="tutorial-section" data-step="modules">
+  <h2>Modules</h2>
+  <p>Run <code>aflat module Student</code> to scaffold <code>src/Student/mod.af</code>, move the class there, then import with <code>import Student from "./Student";</code>.</p>
+  <p>Mark fields <code>private</code> if they should not be mutated from outside the class, and expose helper methods (e.g., <code>getAverage</code>) to read internal data.</p>
+</article>
+
+
+File: methods.html
+Content:
+<article class="tutorial-section" data-step="methods">
+  <h2>Methods &amp; vectors</h2>
+  <pre><code>fn printInfo() -> void {
+    str.print(`Student: {my.name} id: {my.id} average: {my.average}\n`);
+};</code></pre>
+  <p>Leverage vectors to store rosters:</p>
+  <pre><code>import vector from "Collections/Vector";
+import option from "Utils/option";
+import {Some, None} from "Utils/option";
+
+fn main() -> int {
+    let roster = [
+        new Student(1, "John Doe", 90),
+        new Student(2, "Jane Doe", 80)
+    ];
+
+    foreach student in roster {
+        student.printInfo();
+    };
+};</code></pre>
+</article>
+
+
+File: strings.html
+Content:
+<article class="tutorial-section" data-step="strings">
+  <h2>Working with strings</h2>
+  <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+
+fn main() -> int {
+    let name = str.readString("What is your name? ");
+    str.print(`Hello, {name}.\nFrom the AFlat Team.\n`);
+    return 0;
+};</code></pre>
+  <ul>
+    <li>Import <code>string</code> for the type and targeted helpers under <code>str</code>.</li>
+    <li><code>let</code> infers types; prompts pass directly into <code>readString</code>.</li>
+    <li>Backticks enable interpolation: <code>{name}</code> expands inline.</li>
+  </ul>
+</article>
+
+
+File: conditionals.html
+Content:
+<article class="tutorial-section" data-step="conditionals">
+  <h2>If / else statements</h2>
+  <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+
+fn main() -> int {
+    let name = str.readString("What is your name? ");
+
+    if name == "Name" {
+        str.print(`Hello, {name}. \nFrom the AFlat Team.\n`);
+    } else {
+        str.print("I don't know you... \nGo away!\n");
+    };
+    return 0;
+};</code></pre>
+  <p>Comparisons require matching types; braces optional for single statements.</p>
+</article>
+
+
+File: classes.html
+Content:
+<article class="tutorial-section" data-step="classes">
+  <h2>Classes</h2>
+  <pre><code>class Student {
+    mutable int id;
+    mutable string name = "";
+    mutable int average;
+};</code></pre>
+  <p>Constructor example:</p>
+  <pre><code>class Student {
+    mutable int id;
+    mutable string name = "";
+    mutable int average;
+
+    fn init(int id, string name, int average) -> Student {
+        my.id = id;
+        my.name = name;
+        my.average = average;
+    };
+};
+
+fn main() -> int {
+    let s = Student(1, "John", 90);
+    str.print(`Student: {s.name} id: {s.id} average: {s.average}\n`);
+    return 0;
+};</code></pre>
+  <p>Struct literals can initialize objects too, but field order must stay synchronized with the signature.</p>
+</article>
+
+
+File: wrapup.html
+Content:
+<article class="tutorial-section" data-step="wrapup">
+  <h2>Wrap-up</h2>
+  <p>Extend the roster system: show assignment lists, persist data, or expose HTTP endpoints. This tutorial will keep growing alongside the language.</p>
+</article>
+
+
+File: guessing.html
+Content:
+<article class="tutorial-section" data-step="guessing">
+  <h2>Guessing game</h2>
+  <p>Introduce <code>match</code> to handle parsing errors:</p>
+  <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+import Error from "Utils/Error";
+import result from "Utils/result";
+import { accept, reject } from "Utils/result";
+
+fn main() -> int {
+    int secret = 42;
+
+    let guess = str.readString("Enter your guess: ");
+    let guessInt = match guess.toInt() {
+        Ok(i) => i,
+        Err(err) => panic(`Error converting string to int: {err}`.cstr())
+    };
+
+    if guessInt == secret
+        str.print("You guessed it!\n")
+    else if guessInt < secret
+        str.print("Too low!\n")
+    else
+        str.print("Too high!\n");
+
+    return 0;
+};</code></pre>
+</article>
+
+
+File: installation.html
+Content:
+<article class="tutorial-section" data-step="installation">
+  <h2>Installation</h2>
+  <p><strong>Remember:</strong> If aflat is already installed, pull the latest changes first. Refer to the README instructions to download and build the toolchain.</p>
+  <p>Update in place:</p>
+  <pre><code>aflat update</code></pre>
+  <p>Build the compiler from source with CMake:</p>
+  <pre><code>mkdir build &amp;&amp; cd build
+cmake .. &amp;&amp; make</code></pre>
+  <p>Format C++ changes with <code>clang-format</code> and run <code>./rebuild-libs.sh</code> after editing <code>libraries/std/src</code>. Use <code>./bin/aflat run</code> to ensure everything works.</p>
+</article>
+
+
+File: random.html
+Content:
+<article class="tutorial-section" data-step="random">
+  <h2>Random numbers</h2>
+  <p>Swap the static secret with randomness:</p>
+  <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+import Error from "Utils/Error";
+import result from "Utils/result";
+import { accept, reject } from "Utils/result";
+import math;
+
+fn main() -> int {
+    int secret = Random().nextInt(100);
+
+    for mutable int i = 0; i < 10; i = i + 1 {
+        let guess = str.readString("Enter your guess: ");
+        let guessInt = match guess.toInt() {
+            Ok(i) => i,
+            Err(err) => panic(`Error converting string to int: {err}`.cstr())
+        };
+
+        if guessInt == secret
+            str.print("You guessed it!\n")
+        else if guessInt < secret
+            str.print("Too low!\n")
+        else
+            str.print("Too high!\n");
+    };
+    str.print(`The secret number was {secret}\n`);
+    return 0;
+};</code></pre>
+</article>
+
+
+File: loops.html
+Content:
+<article class="tutorial-section" data-step="loops">
+  <h2>Loops</h2>
+  <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+import Error from "Utils/Error";
+import result from "Utils/result";
+import { accept, reject } from "Utils/result";
+
+fn main() -> int {
+    int secret = 42;
+    for mutable int i = 0; i < 10; i = i + 1 {
+        let guess = str.readString("Enter your guess: ");
+        let guessInt = match guess.toInt() {
+            Ok(i) => i,
+            Err(err) => panic(`Error converting string to int: {err}`.cstr())
+        };
+
+        if guessInt == secret {
+            str.print("You guessed it!\n");
+            break;
+        } else if guessInt < secret
+            str.print("Too low!\n")
+        else
+            str.print("Too high!\n");
+    };
+    str.print(`The secret number was {secret}\n`);
+    return 0;
+};</code></pre>
+</article>
+
+
+File: roster.html
+Content:
+<article class="tutorial-section" data-step="roster">
+  <h2>Roster system</h2>
+  <pre><code>fn addStudent(vector::<Student> roster) -> void {
+    let name = str.readString("Enter student name: ");
+    let id = roster.count() + 1;
+    roster.push_back(new Student(id, name, 0));
+};
+
+fn addGrade(vector::<Student> roster) -> bool {
+    let id = str.readString("Enter student id: ");
+    let id = match id.toInt() {
+        Ok(i) => i,
+        Err => {
+            str.print("Invalid ID. Please enter a valid integer.\n");
+            return false;
+        }
+    };
+
+    let student = match roster.findFirst(fn (Student s, int& i) return s.id == i, ?id) {
+        Some(s) => s,
+        None => {
+            str.print("Student not found.\n");
+            return false;
+        }
+    };
+
+    let assignmentName = str.readString("Enter assignment name: ");
+    let grade = str.readString("Enter assignment grade: ");
+    match grade.toInt() {
+        Ok(g) => {
+            let assignment = new Assignment(assignmentName, g);
+            student.addAssignment($assignment);
+            roster.set(student.id - 1, $student);
+            return true;
+        },
+        Err => {
+            str.print("Invalid grade. Please enter a valid integer.\n");
+            return false;
+        }
+    };
+};</code></pre>
+  <p>Main loop:</p>
+  <pre><code>fn main() -> int {
+    let roster = new vector::<Student>();
+
+    while true {
+        str.print("\n--Student Roster--\n");
+        foreach s in roster {
+            s.printInfo();
+        };
+        str.print("--------------------\n");
+        str.print("Menu : 1. Add a student | 2. Add Grade | quit\n> ");
+        let input = str.readString("Enter a command: ");
+
+        if input == "1" {
+            addStudent(roster);
+        } else if input == "2" {
+            if !addGrade(roster) {
+                str.print("Failed to add grade.\n");
+            };
+        } else if input == "quit" | input == "exit" {
+            str.print("Exiting program.\n");
+            break;
+        } else {
+            str.print("Invalid command. Please try again.\n");
+        };
+    };
+
+    return 0;
+};</code></pre>
+</article>
+
+

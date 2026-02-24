@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AFlat Examples - updated-server</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page tutorial">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link" href="/tutorial">Tutorial</a>
+          <a class="nav-link active" href="/examples">Examples</a>
+          <a class="nav-link" href="/sandbox">Sandbox</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">AFlat programming language</p>
+          <h1>Example gallery</h1>
+          <p class="lead">
+            Copy, remix, and extend these focused samples built straight from the tutorial. Each one
+            demonstrates a core part of the language.
+          </p>
+          <p class="powered">
+            Served live from updated-server with AFlat's Web/Content helper, so tweaks show up as soon
+            as you save.
+          </p>
+        </div>
+      </header>
+
+      <section class="tutorial-section">
+        <h2>Quick-start snippets</h2>
+        <div class="examples-grid">
+          <article class="example-card">
+            <h3>Hello world</h3>
+            <p>Minimal entry point with std library and io helper.</p>
+            <pre><code>.needs &lt;std&gt;
+import * from "io" under io;
+
+fn main() -> int {
+    io.print("Hello, world!\n");
+    return 0;
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Personalized greeting</h3>
+            <p>Prompt the user and use string interpolation.</p>
+            <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+
+fn main() -> int {
+    let name = str.readString("Name? ");
+    str.print(`Hello, {name}!\n`);
+    return 0;
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Guarded access</h3>
+            <p>Compare input using if/else.</p>
+            <pre><code>if name == "AFlat" {
+    str.print("Welcome back!\n");
+} else {
+    str.print("Access denied.\n");
+};</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="tutorial-section">
+        <h2>Richer programs</h2>
+        <div class="examples-grid">
+          <article class="example-card">
+            <h3>Guessing game loop</h3>
+            <pre><code>for mutable int i = 0; i &lt; 5; i = i + 1 {
+    let guess = str.readString("Guess: ");
+    let guessInt = guess.toInt()!;
+
+    if guessInt == secret {
+        str.print("You got it!\n");
+        break;
+    } else if guessInt &lt; secret
+        str.print("Too low\n")
+    else
+        str.print("Too high\n");
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Student class</h3>
+            <pre><code>class Student {
+    mutable int id;
+    mutable string name = "";
+    mutable int average;
+
+    fn init(int id, string name, int average) -> Student {
+        my.id = id;
+        my.name = name;
+        my.average = average;
+    };
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Roster printer</h3>
+            <pre><code>let roster = [
+    new Student(1, "John", 90),
+    new Student(2, "Jane", 95)
+];
+
+foreach s in roster {
+    s.printInfo();
+};</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="tutorial-section">
+        <h2>Ownership + result mashup</h2>
+        <pre><code>import {accept, reject} from "Utils/result" under pr;
+
+fn addAssignment(Student &&student, Assignment &&assignment) -> bool! {
+    student.addAssignment($assignment);
+    return true;
+};
+
+fn divide(int a, int b) -> int! {
+    if b == 0
+        return pr.reject::<int>(Error("Cannot divide by zero"));
+    return a / b;
+};</code></pre>
+        <p>
+          These helpers showcase how ownership moves through <code>&amp;&amp;</code> parameters while the
+          <code>!</code> shorthand lets you bubble errors without extra boilerplate.
+        </p>
+      </section>
+
+      <footer>
+        updated-server - AFlat example suite running on the same server that serves this page
+      </footer>
+    </div>
+    <script defer src="/index.js"></script>
+  </body>
+</html>

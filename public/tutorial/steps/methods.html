@@ -1,0 +1,21 @@
+<article class="tutorial-section" data-step="methods">
+  <h2>Methods &amp; vectors</h2>
+  <pre><code>fn printInfo() -> void {
+    str.print(`Student: {my.name} id: {my.id} average: {my.average}\n`);
+};</code></pre>
+  <p>Leverage vectors to store rosters:</p>
+  <pre><code>import vector from "Collections/Vector";
+import option from "Utils/option";
+import {Some, None} from "Utils/option";
+
+fn main() -> int {
+    let roster = [
+        new Student(1, "John Doe", 90),
+        new Student(2, "Jane Doe", 80)
+    ];
+
+    foreach student in roster {
+        student.printInfo();
+    };
+};</code></pre>
+</article>

@@ -1,0 +1,25 @@
+.needs <std>
+
+import string from "String";
+import { print } from "String" under str;
+import {envVar} from "System" under sys;
+import { Now } from "DateTime" under dt;
+import DateTime from "DateTime";
+import LogLevel, Logger from "./Logger";
+import { getLogger } from "./Logger" under logger;
+
+export fn info(const string message) {
+  return logger.getLogger().log(LogLevel.Info, message);
+};
+
+export fn debug(const string message) {
+  return logger.getLogger().log(LogLevel.Debug, message);
+};
+
+export fn warning(const string message) {
+  return logger.getLogger().log(LogLevel.Warn, message);
+};
+
+export fn error(const string message) {
+  return logger.getLogger().log(LogLevel.Error, message);
+};

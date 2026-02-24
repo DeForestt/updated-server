@@ -1,0 +1,17 @@
+<article class="tutorial-section" data-step="strings">
+  <h2>Working with strings</h2>
+  <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+
+fn main() -> int {
+    let name = str.readString("What is your name? ");
+    str.print(`Hello, {name}.\nFrom the AFlat Team.\n`);
+    return 0;
+};</code></pre>
+  <ul>
+    <li>Import <code>string</code> for the type and targeted helpers under <code>str</code>.</li>
+    <li><code>let</code> infers types; prompts pass directly into <code>readString</code>.</li>
+    <li>Backticks enable interpolation: <code>{name}</code> expands inline.</li>
+  </ul>
+</article>

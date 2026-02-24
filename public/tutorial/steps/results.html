@@ -1,0 +1,19 @@
+<article class="tutorial-section" data-step="results">
+  <h2>Error handling with result</h2>
+  <pre><code>import {accept, reject} from "Utils/result" under pr;
+
+fn divide(int a, int b) -> int! {
+    if b == 0
+        return pr.reject::<int>(Error("Cannot divide by zero"));
+    return a / b;
+};
+
+fn main() -> int {
+    match divide(10, 0) {
+        Ok(value) => str.print(`Value: {value}\n`),
+        Err(e) => str.print(`Error: {e}\n`)
+    };
+    return 0;
+};</code></pre>
+  <p>Apply the <code>!</code> shorthand to roster helpers to bubble parse errors from <code>toInt</code>.</p>
+</article>

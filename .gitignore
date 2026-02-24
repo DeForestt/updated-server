@@ -1,0 +1,9 @@
+# AFlat build artifacts
+/bin/
+/.aflat/
+/.cache/
+/head/
+
+# Editor/OS noise
+.DS_Store
+*.swp

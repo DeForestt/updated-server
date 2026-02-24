@@ -1,0 +1,176 @@
+.needs <std>
+import string from "String";
+import {system, envVar} from "System" under sys;
+import File from "files";
+import {createFile, openFile} from "files" under fs;
+import result from "Utils/result";
+import {accept, reject, resultWrapper} from "Utils/result" under res;
+import Error from "Utils/Error";
+import {info, debug, warning, error} from "../flat_log" under log;
+
+mutable int sandboxCounter = 0;
+
+fn nextSandboxRoot() -> string {
+	sandboxCounter = sandboxCounter + 1;
+	return `./tmp/aflat-sandbox/run-{sandboxCounter}`;
+};
+
+fn ensureDirectory(const string path) -> bool {
+	const string command = `mkdir -p {path}`;
+	return sys.system(command.cstr()) == 0;
+};
+
+fn cleanupSandbox(const string path) {
+	const string command = `rm -rf {path}`;
+	sys.system(command.cstr());
+};
+
+fn writeTextFile(const string path, const string body) -> bool {
+	match fs.createFile(path.cstr()) {
+		Ok(file) => {
+			file.write(body.cstr());
+			file.close();
+			return true;
+		},
+		Err(_) => {
+			return false;
+		}
+	};
+};
+
+fn readFileContents(const string path) -> string! {
+	match fs.openFile(path.cstr()) {
+		Ok(file) => {
+			match file.readToEnd() {
+				Ok(contents) => {
+					file.close();
+	;				return res.accept(contents);
+				},
+				Err(err) => {
+					file.close();
+					return res.reject::<string>(err);
+				}
+			};
+		},
+		Err(err) => {
+			return res.reject::<string>(err);
+		}
+	};
+};
+
+fn resolveDockerImage() -> string {
+	const adr override = sys.envVar("AFLAT_SANDBOX_IMAGE");
+	if override != NULL {
+		return new string(override);
+	};
+	return new string("aflat-sandbox:latest");
+};
+
+fn ensureSandboxImage(const string image) -> bool {
+	log.debug(`Checking availability of sandbox image {image}`);
+	const string inspectCmd = `docker image inspect {image} > /dev/null 2>&1`;
+	if sys.system(inspectCmd.cstr()) == 0 {
+		return true;
+	};
+
+	log.warning(`Sandbox image {image} not yet available; waiting for background load to finish`);
+	mutable int attempts = 0;
+	while attempts < 60 {
+		sys.system("sleep 1");
+		if sys.system(inspectCmd.cstr()) == 0 {
+			log.info(`Sandbox image {image} became available after waiting {attempts + 1} seconds`);
+			return true;
+		};
+		attempts = attempts + 1;
+	};
+
+	log.error(`Sandbox image {image} is not available; background load likely failed`);
+	return false;
+};
+
+export fn runAflat(string modualMain) -> string! {
+	log.info(`#runAflat: received sandbox execution request ({modualMain.len()} bytes)`);
+	log.debug("Ensuring sandbox root directory exists");
+	if !ensureDirectory("./tmp/aflat-sandbox") {
+		log.error("Failed to prepare sandbox root directory ./tmp/aflat-sandbox");
+		return res.reject::<string>(new Error("Failed to prepare sandbox root"));
+	};
+
+	const string sandboxRoot = nextSandboxRoot();
+	const string srcDir = `{sandboxRoot}/src`;
+	const string cfgPath = `{sandboxRoot}/aflat.cfg`;
+	const string mainPath = `{srcDir}/main.af`;
+	const string binDir = `{sandboxRoot}/bin`;
+	const string logPath = `{sandboxRoot}/stdout.log`;
+	log.debug(`Sandbox root {sandboxRoot}`);
+	log.debug(`Source path {mainPath}`);
+
+	if !ensureDirectory(srcDir) {
+		log.error(`Failed to create sandbox source directory at {srcDir}`);
+		cleanupSandbox(sandboxRoot);
+		return res.reject::<string>(new Error(`Failed to create sandbox directory at {srcDir}`));
+	};
+
+	if !ensureDirectory(binDir) {
+		log.error(`Failed to create sandbox bin directory at {binDir}`);
+		cleanupSandbox(sandboxRoot);
+		return res.reject::<string>(new Error(`Failed to create sandbox bin directory at {binDir}`));
+	};
+
+	const string configBody = "[build]\nmain = main\n\n[dependencies]\n";
+	if !writeTextFile(cfgPath, configBody) {
+		log.error(`Failed writing sandbox aflat.cfg to {cfgPath}`);
+		cleanupSandbox(sandboxRoot);
+		return res.reject::<string>(new Error("Failed to create sandbox configuration"));
+	};
+
+	if !writeTextFile(mainPath, modualMain) {
+		log.error(`Failed writing sandbox source to {mainPath}`);
+		cleanupSandbox(sandboxRoot);
+		return res.reject::<string>(new Error("Failed to write sandbox source"));
+	};
+
+	match fs.createFile(logPath.cstr()) {
+		Ok(file) => {
+			file.close();
+		},
+		Err(_) => {
+			log.warning(`Unable to create sandbox stdout log at {logPath}`);
+		}
+	};
+
+	const string image = resolveDockerImage();
+	log.info(`Using sandbox image {image}`);
+	if !ensureSandboxImage(image) {
+		cleanupSandbox(sandboxRoot);
+		return res.reject::<string>(new Error(`Failed to prepare sandbox image {image}`));
+	};
+
+	const string dockerCmd = `docker run --rm -v {sandboxRoot}:/workspace -w /workspace {image} -c 'aflat run -q' > {logPath} 2>&1`;
+	log.debug(`Executing sandbox command: {dockerCmd}`);
+	const int status = sys.system(dockerCmd.cstr());
+	log.debug(`Sandbox process exited with status {status}`);
+	mutable string runOutput = new string("");
+
+	match readFileContents(logPath) {
+		Ok(contents) => {
+			runOutput = contents;
+		},
+		Err(err) => {
+			log.error(`Failed to read sandbox log output from {logPath}: {err}`);
+			cleanupSandbox(sandboxRoot);
+			return res.reject::<string>(err);
+		}
+	};
+
+	cleanupSandbox(sandboxRoot);
+	log.debug(`Cleaned up sandbox directory {sandboxRoot}`);
+
+	if status != 0 {
+		log.error(`Sandbox run failed with exit code {status}`);
+		return res.reject::<string>(new Error(`Sandbox run failed with exit code {status}\n{runOutput}`));
+	};
+
+	log.info("Sandbox run completed successfully");
+	return res.accept(runOutput);
+};

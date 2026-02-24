@@ -1,0 +1,32 @@
+<article class="tutorial-section" data-step="random">
+  <h2>Random numbers</h2>
+  <p>Swap the static secret with randomness:</p>
+  <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+import Error from "Utils/Error";
+import result from "Utils/result";
+import { accept, reject } from "Utils/result";
+import math;
+
+fn main() -> int {
+    int secret = Random().nextInt(100);
+
+    for mutable int i = 0; i < 10; i = i + 1 {
+        let guess = str.readString("Enter your guess: ");
+        let guessInt = match guess.toInt() {
+            Ok(i) => i,
+            Err(err) => panic(`Error converting string to int: {err}`.cstr())
+        };
+
+        if guessInt == secret
+            str.print("You guessed it!\n")
+        else if guessInt < secret
+            str.print("Too low!\n")
+        else
+            str.print("Too high!\n");
+    };
+    str.print(`The secret number was {secret}\n`);
+    return 0;
+};</code></pre>
+</article>

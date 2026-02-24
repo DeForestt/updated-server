@@ -1,0 +1,8 @@
+.needs <std>
+import Content from "Web/Content";
+
+class Tutorial signs Content {
+    fn init() {
+        my.loadFile("./public/tutorial.html");
+    };
+};
