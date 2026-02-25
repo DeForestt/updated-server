@@ -142,7 +142,9 @@ export fn runAflat(string modualMain) -> string! {
 			file.close();
 		},
 		Err(_) => {
-			log.warning(`Unable to create sandbox stdout log at {logPath}`);
+			log.error(`Unable to create sandbox stdout log at {logPath}`);
+			cleanupSandbox(sandboxRoot);
+			return res.reject::<string>(new Error("Failed to write to create stdout log"));
 		}
 	};
 
