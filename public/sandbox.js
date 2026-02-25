@@ -11,7 +11,7 @@ const sandbox = (() => {
 import {print} from "String" under str;
 
 fn main() -> int {
-    str.print("Hello from the sandbox!\n");
+    str.print("Hello from the sandbox!");
     return 0;
 };`,
     dice: `.needs <std>
@@ -21,14 +21,14 @@ import {print} from "String" under str;
 fn main() -> int {
     Random rng = new Random();
     const int roll = rng.nextInt(6) + 1;
-    str.print(\`You rolled a {roll}!\n\`);
+    str.print(\`You rolled a {roll}!\`);
     return 0;
 };`,
     error: `.needs <std>
 import {print} from "String" under str;
 
 fn main() -> int {
-    str.print("About to panic...\n");
+    str.print("About to panic...");
     panic("boom");
 };`
   };

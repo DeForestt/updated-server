@@ -1,268 +1,252 @@
 {
     "processed_files": [
         {
-            "path": "flat_log.aflat.cfg",
+            "path": "docker-entrypoint.sh",
             "chunks": 1,
-            "size": 117,
-            "lines": 7,
-            "words": 15
+            "size": 917,
+            "lines": 43,
+            "words": 101
         },
         {
             "path": "Dockerfile",
             "chunks": 1,
-            "size": 916,
-            "lines": 38,
-            "words": 128
+            "size": 1086,
+            "lines": 44,
+            "words": 141
         },
         {
-            "path": "compact.yml",
+            "path": ".dockerignore",
             "chunks": 1,
-            "size": 257,
-            "lines": 11,
-            "words": 23
+            "size": 88,
+            "lines": 7,
+            "words": 7
         },
         {
             "path": "aflat.cfg",
             "chunks": 1,
-            "size": 328,
-            "lines": 10,
-            "words": 26
+            "size": 458,
+            "lines": 13,
+            "words": 35
         },
         {
             "path": "fly.toml",
             "chunks": 1,
-            "size": 460,
-            "lines": 22,
-            "words": 59
-        },
-        {
-            "path": ".gitignore",
-            "chunks": 1,
-            "size": 90,
-            "lines": 9,
-            "words": 13
+            "size": 611,
+            "lines": 30,
+            "words": 73
         },
         {
             "path": "src/main.af",
             "chunks": 1,
-            "size": 5216,
-            "lines": 139,
-            "words": 513
+            "size": 6865,
+            "lines": 188,
+            "words": 670
         },
         {
-            "path": "src/test/test.af",
+            "path": "src/sandbox/mod.af",
             "chunks": 1,
-            "size": 1804,
-            "lines": 65,
-            "words": 169
+            "size": 5942,
+            "lines": 189,
+            "words": 653
         },
         {
-            "path": "src/flat_log/mod.af",
+            "path": "src/UI/Assets/SandboxJS/mod.af",
             "chunks": 1,
-            "size": 698,
-            "lines": 25,
-            "words": 85
-        },
-        {
-            "path": "src/flat_log/test/test.af",
-            "chunks": 1,
-            "size": 445,
-            "lines": 18,
-            "words": 56
-        },
-        {
-            "path": "src/flat_log/Logger/mod.af",
-            "chunks": 1,
-            "size": 1711,
-            "lines": 75,
-            "words": 228
-        },
-        {
-            "path": "src/UI/Tutorial/mod.af",
-            "chunks": 1,
-            "size": 153,
+            "size": 151,
             "lines": 8,
             "words": 17
         },
         {
-            "path": "src/UI/Index/mod.af",
+            "path": "src/UI/Sandbox/mod.af",
             "chunks": 1,
-            "size": 146,
-            "lines": 8,
-            "words": 17
-        },
-        {
-            "path": "src/UI/Assets/IndexJS/mod.af",
-            "chunks": 1,
-            "size": 147,
-            "lines": 8,
-            "words": 17
-        },
-        {
-            "path": "src/UI/Assets/Styles/mod.af",
-            "chunks": 1,
-            "size": 148,
-            "lines": 8,
-            "words": 17
-        },
-        {
-            "path": "src/UI/Examples/mod.af",
-            "chunks": 1,
-            "size": 153,
+            "size": 155,
             "lines": 8,
             "words": 17
         },
         {
             "path": "public/styles.css",
             "chunks": 1,
-            "size": 9205,
-            "lines": 523,
-            "words": 1076
+            "size": 10664,
+            "lines": 604,
+            "words": 1239
+        },
+        {
+            "path": "public/sandbox.html",
+            "chunks": 1,
+            "size": 3095,
+            "lines": 81,
+            "words": 251
+        },
+        {
+            "path": "public/sandbox.js",
+            "chunks": 1,
+            "size": 3060,
+            "lines": 117,
+            "words": 323
         },
         {
             "path": "public/index.html",
             "chunks": 1,
-            "size": 8742,
-            "lines": 206,
-            "words": 663
+            "size": 8800,
+            "lines": 207,
+            "words": 666
         },
         {
             "path": "public/examples.html",
             "chunks": 1,
-            "size": 4440,
-            "lines": 145,
-            "words": 420
-        },
-        {
-            "path": "public/index.js",
-            "chunks": 1,
-            "size": 4486,
-            "lines": 149,
-            "words": 441
+            "size": 4498,
+            "lines": 146,
+            "words": 423
         },
         {
             "path": "public/tutorial.html",
             "chunks": 1,
-            "size": 3317,
-            "lines": 74,
-            "words": 215
+            "size": 3375,
+            "lines": 75,
+            "words": 218
+        },
+        {
+            "path": "compact/metadata.json",
+            "chunks": 1,
+            "size": 6426,
+            "lines": 268,
+            "words": 458
+        },
+        {
+            "path": "compact/hashes.json",
+            "chunks": 1,
+            "size": 2564,
+            "lines": 39,
+            "words": 76
+        },
+        {
+            "path": "compact/remaining/aflat-server.txt",
+            "chunks": 1,
+            "size": 63878,
+            "lines": 2082,
+            "words": 6446
+        }
+    ],
+    "skipped_files": [
+        {
+            "path": "flat_log.aflat.cfg",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "compact.yml",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": ".gitignore",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/test/test.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/flat_log/mod.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/flat_log/test/test.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/flat_log/Logger/mod.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/UI/Tutorial/mod.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/UI/Index/mod.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/UI/Assets/IndexJS/mod.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/UI/Assets/Styles/mod.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/UI/Examples/mod.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "public/index.js",
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/customizing.html",
-            "chunks": 1,
-            "size": 339,
-            "lines": 12,
-            "words": 37
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/first-project.html",
-            "chunks": 1,
-            "size": 1053,
-            "lines": 21,
-            "words": 98
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/ownership.html",
-            "chunks": 1,
-            "size": 862,
-            "lines": 19,
-            "words": 87
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/templates.html",
-            "chunks": 1,
-            "size": 341,
-            "lines": 4,
-            "words": 28
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/results.html",
-            "chunks": 1,
-            "size": 595,
-            "lines": 19,
-            "words": 71
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/modules.html",
-            "chunks": 1,
-            "size": 440,
-            "lines": 5,
-            "words": 46
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/methods.html",
-            "chunks": 1,
-            "size": 610,
-            "lines": 21,
-            "words": 65
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/strings.html",
-            "chunks": 1,
-            "size": 664,
-            "lines": 17,
-            "words": 69
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/conditionals.html",
-            "chunks": 1,
-            "size": 568,
-            "lines": 18,
-            "words": 69
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/classes.html",
-            "chunks": 1,
-            "size": 751,
-            "lines": 27,
-            "words": 92
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/wrapup.html",
-            "chunks": 1,
-            "size": 238,
-            "lines": 4,
-            "words": 26
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/guessing.html",
-            "chunks": 1,
-            "size": 826,
-            "lines": 29,
-            "words": 96
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/installation.html",
-            "chunks": 1,
-            "size": 668,
-            "lines": 10,
-            "words": 66
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/random.html",
-            "chunks": 1,
-            "size": 990,
-            "lines": 32,
-            "words": 119
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/loops.html",
-            "chunks": 1,
-            "size": 922,
-            "lines": 30,
-            "words": 113
+            "reason": "Unchanged file (hash match)"
         },
         {
             "path": "public/tutorial/steps/roster.html",
-            "chunks": 1,
-            "size": 2156,
-            "lines": 71,
-            "words": 236
+            "reason": "Unchanged file (hash match)"
         }
     ],
-    "skipped_files": [],
     "summary": {
-        "total_files_processed": 37,
-        "total_words": 5533
+        "total_files_processed": 18,
+        "total_words": 11814
     }
 }

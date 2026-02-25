@@ -1,3 +1,2183 @@
+File: docker-entrypoint.sh
+Content:
+#!/bin/bash
+set -euo pipefail
+
+SANDBOX_IMAGE="${AFLAT_SANDBOX_IMAGE:-deforestt/aflat-sandbox:latest}"
+
+start_dockerd() {
+  mkdir -p /var/lib/docker /var/run
+  dockerd --host=unix:///var/run/docker.sock --storage-driver=vfs > /var/log/dockerd.log 2>&1 &
+  local pid=$!
+
+  for _ in $(seq 1 30); do
+    if docker info >/dev/null 2>&1; then
+      return
+    fi
+    sleep 1
+  done
+
+  echo "Docker daemon failed to start" >&2
+  wait "$pid"
+}
+
+ensure_sandbox_image_async() {
+  if docker image inspect "$SANDBOX_IMAGE" >/dev/null 2>&1; then
+    return
+  fi
+
+  (
+    set +e
+    if docker pull "$SANDBOX_IMAGE"; then
+      docker image tag "$SANDBOX_IMAGE" "${SANDBOX_IMAGE%:*}:cached"
+      echo "Sandbox image pull completed"
+    else
+      echo "Sandbox image pull failed" >&2
+    fi
+  ) &
+  SANDBOX_PULL_PID=$!
+  export SANDBOX_PULL_PID
+}
+
+start_dockerd
+ensure_sandbox_image_async
+cd /project
+exec sudo -E ./bin/a.out "$@"
+
+
+Unknown chunk type:
+{'header': '# updated-server', 'content': '\nThis project was generated with the AFlat toolchain. Use the commands below to build, run, test, and explore the codebase.\n\n'}
+
+Unknown chunk type:
+{'header': '## Build & Run', 'content': '- `aflat build` - compile sources defined in `aflat.cfg`.\n- `aflat run` - build and execute the resulting binary.\n- `aflat test` - build and run the configured test target.\n\n'}
+
+Unknown chunk type:
+{'header': '## Sandbox Image Workflow', 'content': 'The runtime pulls the sandbox Docker image defined in `AFLAT_SANDBOX_IMAGE`\nduring startup. To publish updates:\n\n1. Build the sandbox image locally: `docker build -f Dockerfile.sandbox -t deforestt/aflat-sandbox:latest .`\n2. Push it: `docker push deforestt/aflat-sandbox:latest`\n3. Deploy the app (`fly deploy`) so new machines pull the latest tag.\n\n'}
+
+Unknown chunk type:
+{'header': '## Inspecting Code', 'content': '- `aflat docs src/main.af` lists classes, unions, transforms, and functions in this project.\n- `aflat docs String` explores a standard library module.\n\n'}
+
+Unknown chunk type:
+{'header': '### Creating modules', 'content': 'Use `aflat module <module name>` to scaffold `src/<module name>/mod.af` and automatically register it under [dependencies]. For single files, run `aflat file <name>`.\n\n'}
+
+Unknown chunk type:
+{'header': '### Standard library overview', 'content': 'AFlat ships a batteries-included standard library under `libraries/std`. The modules below are the most commonly used building blocks:\n\n'}
+
+Unknown chunk type:
+{'header': '#### Runtime & strings', 'content': "- `std` - Arena allocator, `malloc`/`free`, `memcpy`, `panic`, `sleep`, and other intrinsics (libraries/std/src/std.af).\n- `std-cmp` - Compatibility shim that swaps in libc memory helpers plus panic/assert when the arena can't be used (libraries/std/src/std-cmp.af).\n- `Memory` - RefCounted base class alongside the generic `Box`/`wrap` helpers for owning values (libraries/std/src/Memory.af).\n- `String` - Assembly-backed string primitive covering allocation, slicing, iteration, comparisons, casing, and conversions (libraries/std/src/String.af).\n- `strings` - Standalone utilities such as `len`, concat, ASCII helpers, and int/float parsing/formatting (libraries/std/src/strings.af).\n- `System` - Thin syscall wrappers for `execve`, `exec`, shell execution, and environment-variable helpers (libraries/std/src/System.af).\n\n"}
+
+Unknown chunk type:
+{'header': '#### Numerics & IO', 'content': '- `math` - Numeric helpers including `Random`, integer/float exponentiation, square roots, conversions, and absolute values (libraries/std/src/math.af).\n- `io` - Terminal IO functions for reading strings, printing chars/ints/hex, and emitting ANSI-colored output (libraries/std/src/io.af).\n- `files` - File descriptor wrapper with `FileError`/`ReadError`, buffered reads, iterators, and write helpers (libraries/std/src/files.af).\n- `DateTime` - Epoch-based `DateTime` struct with parsing, getters, formatting, and day-of-week math (libraries/std/src/DateTime.af).\n\n'}
+
+Unknown chunk type:
+{'header': '#### Collections & iteration', 'content': '- `Collections` - Generic `List` implementation with push/pop/find helpers and bounds-checked access (libraries/std/src/Collections.af).\n- `Collections/Vector` - Type-parametric `vector` supporting copy/move semantics, iterators, sorting, and optional accessors (libraries/std/src/Collections/Vector.af).\n- `Collections/unordered_map` - Hash-tree-backed associative container with `set`/`get`/`keys` and Option-aware lookups (libraries/std/src/Collections/unordered_map.af).\n- `Collections/Iterator` - Base iterator abstraction plus `Next`/`Peek` decorators to wire callbacks (libraries/std/src/Collections/Iterator.af).\n- `Collections/Enumerator` - Adds index-aware enumeration and exposes the numeric `Range` iterator (libraries/std/src/Collections/Enumerator.af).\n- `Collections/Scroller` - List-backed iterator that yields sequential elements with peek support (libraries/std/src/Collections/Scroller.af).\n- `Collections/Tuple` - Value-type tuples with ownership-safe destruction and `make_tuple` helper (libraries/std/src/Collections/Tuple.af).\n\n'}
+
+Unknown chunk type:
+{'header': '#### Data modeling & serialization', 'content': '- `JSON` - Tagged union covering JSON primitives, casting helpers, mutation, and pretty printing (libraries/std/src/JSON.af).\n- `JSON/Parse` - Wrapper that routes to `JSON.parse` for turning strings into JSON values (libraries/std/src/JSON/Parse.af).\n- `JSON/Property` - Reserved module for future JSON/property bindings (libraries/std/src/JSON/Property.af).\n\n'}
+
+Unknown chunk type:
+{'header': '#### HTTP & networking', 'content': '- `HTTP` - HTTP errors, verb enum, request parser, `HTTPMessage`/`HTTPResponse`, and `listen` helper (libraries/std/src/HTTP.af).\n- `HTTP/Endpoint` - Endpoint wrapper/registry plus pluggable NotFound handler (libraries/std/src/HTTP/Endpoint.af).\n- `HTTP/Endpoints` - Sugar classes for registering GET/POST/PUT/DELETE/etc. handlers (libraries/std/src/HTTP/Endpoints.af).\n- `HTTP/Server` - Middleware-aware server that dispatches endpoints, supports wildcards, and formats error responses (libraries/std/src/HTTP/Server.af).\n- `HTTP/Middleware` - Before/after middleware registration helper applied per request (libraries/std/src/HTTP/Middleware.af).\n- `request.c` - C shim exposing `request`, `_aflat_server_spinUp`, and `serve` socket utilities (libraries/std/src/request.c).\n\n'}
+
+Unknown chunk type:
+{'header': '#### Utility types & error handling', 'content': "- `Utils/Option` - Ref-counted Option class with `resolve`, `match`, and defaulting helpers (libraries/std/src/Utils/Option.af).\n- `Utils/option` - Lightweight union mirroring Rust's Option with `Some`/`None` constructors (libraries/std/src/Utils/option.af).\n- `Utils/Result` - Class-based result value for bridging APIs that expect dynamic success/error payloads (libraries/std/src/Utils/Result.af).\n- `Utils/result` - Rust-style `result<T>` union with ergonomic constructors and unwrap helpers (libraries/std/src/Utils/result.af).\n- `Utils/Error` - Base `Error` class with type metadata, render hooks, and pattern matching (libraries/std/src/Utils/Error.af).\n- `Utils/Error/Render` - Decorator that lets errors plug in a render callback (libraries/std/src/Utils/Error/Render.af).\n\n"}
+
+Unknown chunk type:
+{'header': '#### Utility infrastructure & patterns', 'content': '- `Utils/Functions` - Capturing function wrapper that invokes stored callbacks with optional captures (libraries/std/src/Utils/Functions.af).\n- `Utils/Defer` - RAII helper that runs a `Function` when the object leaves scope unless dismissed (libraries/std/src/Utils/Defer.af).\n- `Utils/Map` - Tree-backed map with hashing, normalization, and Option-returning lookups (libraries/std/src/Utils/Map.af).\n- `Utils/Object` - Dynamic object base with type tagging, validation hooks, and match support (libraries/std/src/Utils/Object.af).\n- `Utils/Properties` - Property decorators (`computed`, `readonly`, `lazy`, `observable`, `clamped`, `with`) plus supporting classes (libraries/std/src/Utils/Properties.af).\n- `Utils/Observable` - Observer list that notifies subscribers when events fire (libraries/std/src/Utils/Observable.af).\n\n'}
+
+Unknown chunk type:
+{'header': '#### Tooling & frameworks', 'content': '- `ATest` - BDD-style testing DSL with fixtures, describe contexts, hooks, and reporting helpers (libraries/std/src/ATest.af).\n- `concurrency` - Process/thread abstractions (`Process`, `MProcess`), message pipes, and `AsyncResult` handles (libraries/std/src/concurrency.af).\n- `CLArgs` - Command-line parser with long/short flags, typed values, validation, and help text (libraries/std/src/CLArgs.af).\n- `Web/Content` - File-backed templating utility that applies bindings before rendering (libraries/std/src/Web/Content.af).\n- `Web/Content/Bind` - Binding helper that registers template placeholders and preprocessors (libraries/std/src/Web/Content/Bind.af).\n\n'}
+
+Unknown chunk type:
+{'header': '## Refreshing This README', 'content': 'Run `aflat readme [path] [name]` to regenerate these instructions for any folder.\n'}
+
+File: Dockerfile
+Content:
+# Use the latest Ubuntu image
+FROM ubuntu:latest
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    g++ \
+    cmake \
+    git \
+    libboost-all-dev \
+    bash \
+    sudo \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone and build AFlat using the official workflow
+ENV AFLAT_ROOT=/root/.aflat/aflat
+RUN mkdir -p /root/.aflat \
+    && git clone https://github.com/DeForestt/aflat.git ${AFLAT_ROOT}
+
+RUN cmake -S ${AFLAT_ROOT} -B ${AFLAT_ROOT}/build -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build ${AFLAT_ROOT}/build --target aflat \
+    && cd ${AFLAT_ROOT} && bash rebuild-libs.sh
+
+ENV PATH=${AFLAT_ROOT}/bin:$PATH
+
+# Prepare the project directory
+RUN mkdir /project
+WORKDIR /project
+
+# Copy project files
+COPY . .
+
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Expose port 8080 for the AFlat server
+EXPOSE 8080
+
+# Build the project with the freshly built aflat
+RUN aflat build
+
+# Set the entry point to run the Aflat project
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD []
+
+
+File: .dockerignore
+Content:
+**/.git
+**/.aflat
+**/.cache
+**/tmp
+**/node_modules
+sandbox-image.tar
+Dockerfile.sandbox
+
+
+File: aflat.cfg
+Content:
+[build]
+main = main
+test = test/test
+[dependencies]
+flat_log = "https://github.com/DeForestt/flat_log.git"
+UI/Index = "./src/UI/Index/mod.af"
+UI/Tutorial = "./src/UI/Tutorial/mod.af"
+UI/Examples = "./src/UI/Examples/mod.af"
+UI/Assets/IndexJS = "./src/UI/Assets/IndexJS/mod.af"
+UI/Assets/Styles = "./src/UI/Assets/Styles/mod.af"
+sandboxPage = "./src/UI/Sandbox/mod.af"
+UI/Assets/SandboxJS = "./src/UI/Assets/SandboxJS/mod.af"
+sandbox = "./src/sandbox/mod.af"
+
+
+File: fly.toml
+Content:
+# fly.toml app configuration file generated for aflat-web on 2026-02-23T19:03:50-05:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'aflat-web'
+primary_region = 'ewr'
+
+[env]
+  AFLAT_SANDBOX_IMAGE = 'deforestt/aflat-sandbox:latest'
+
+[build]
+
+[mounts]
+  source = "docker"
+  destination = "/var/lib/docker"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  grace_period = '60s'
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpus = 1
+  memory_mb = 1024
+
+
+File: main.af
+Content:
+.needs <std>
+import {print} from "String" under str;
+import string from "String";
+import Server from "HTTP/Server";
+import Middleware from "HTTP/Middleware";
+import HTTPMessage, HTTPResponse, NotImplementedError, NotFoundError from "HTTP";
+import result from "Utils/result";
+import {accept, reject, resultWrapper} from "Utils/result" under res;
+import GET, POST, PUT, DELETE from "HTTP/Endpoints";
+import {info} from "./flat_log" under log;
+import unordered_map from "Collections/unordered_map";
+import option from "Utils/option";
+import {Some, None, optionWrapper} from "Utils/option" under opt;
+import {methodToString} from "HTTP" under http;
+import Content from "Web/Content";
+import Index from "./UI/Index";
+import Tutorial from "./UI/Tutorial";
+import Examples from "./UI/Examples";
+import IndexJS from "./UI/Assets/IndexJS";
+import Styles from "./UI/Assets/Styles";
+import SandboxPage from "./UI/Sandbox";
+import SandboxJS from "./UI/Assets/SandboxJS";
+import {runAflat} from "./sandbox" under sandbox;
+
+class TutorialStep signs Content {
+	fn init(const string filePath) {
+		my.loadFile(filePath.cstr());
+		return my;
+	};
+};
+
+class AflatServer signs Server {
+
+	fn logRequest() -> unordered_map::<adr> : Middleware {
+		unordered_map::<adr> val = {
+			"before": fn (Server __s, HTTPMessage &&req) {
+				log.info(`[{http.methodToString(req.method)}] {req.endpoint}\n`);
+				return req;
+			},
+			"after": fn (Server __s, HTTPMessage __req, HTTPResponse &&r) {
+				log.info(`\t{r.getStatusCode()} {r.getStatusMessage()}\n`);
+				return r;
+			}
+		};
+		return val;
+	};
+
+	fn addContentLength() : Middleware {
+    	unordered_map::<adr> val = {
+   			"after": fn (Server __s, HTTPMessage __req, HTTPResponse &&r) {
+   				const string body = r.getBody();
+   	 			r.addHeader("Content-Length", `{body.len()}`.cstr());
+				return r;
+    		},
+    	};
+    	return val;
+    };
+
+	fn index() : GET("/") {
+		Index home = new Index();
+		let resp = new HTTPResponse(home.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
+	};
+
+	fn tutorial() : GET("/tutorial") {
+		Tutorial page = new Tutorial();
+		let resp = new HTTPResponse(page.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
+	};
+
+	fn examples() : GET("/examples") {
+		Examples page = new Examples();
+		let resp = new HTTPResponse(page.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
+	};
+
+	fn assetScript() : GET("/index.js") {
+		IndexJS script = new IndexJS();
+		let resp = new HTTPResponse(script.render(), "200", "OK");
+		resp.addHeader("Content-Type", "application/javascript");
+		return res.accept(resp);
+	};
+
+	fn assetStyles() : GET("/styles.css") {
+		Styles styles = new Styles();
+		let resp = new HTTPResponse(styles.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/css");
+		return res.accept(resp);
+	};
+
+	fn sandboxPage() : GET("/sandbox") {
+		SandboxPage page = new SandboxPage();
+		let resp = new HTTPResponse(page.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
+	};
+
+	fn sandboxScript() : GET("/sandbox.js") {
+		SandboxJS script = new SandboxJS();
+		let resp = new HTTPResponse(script.render(), "200", "OK");
+		resp.addHeader("Content-Type", "application/javascript");
+		return res.accept(resp);
+	};
+
+	fn runSandbox(HTTPMessage req) : POST("/sandbox/run") {
+		string body = req.body;
+		if body.len() == 0 {
+			const string errorBody = new string("AFlat source is required\n");
+			let bad = new HTTPResponse(errorBody.cstr(), "400", "Bad Request");
+			bad.addHeader("Content-Type", "text/plain; charset=utf-8");
+			return res.accept(bad);
+		};
+
+		match sandbox.runAflat(body) {
+			Ok(output) => {
+				let ok = new HTTPResponse(output.cstr(), "200", "OK");
+				ok.addHeader("Content-Type", "text/plain; charset=utf-8");
+				return res.accept(ok);
+			},
+			Err(err) => {
+				const string failure = `Sandbox run failed: {err}`;
+				let bad = new HTTPResponse(failure.cstr(), "400", "Bad Request");
+				bad.addHeader("Content-Type", "text/plain; charset=utf-8");
+				return res.accept(bad);
+			}
+		};
+	};
+
+
+	fn tutorialStep(HTTPMessage msg, ? string stepId) : GET("/tutorial/steps/:*") {
+		if stepId.isNone() {
+			const string body = new string("Step not found");
+			let resp = new HTTPResponse(body, "404", "Not Found");
+			resp.addHeader("Content-Type", "text/plain");
+			return res.accept(resp);
+		};
+		const option::<string> maybePath = my.stepPath(stepId.or(``));
+		match maybePath {
+			Some(path) => {
+				TutorialStep snippet = new TutorialStep(path);
+				let resp = new HTTPResponse(snippet.render(), "200", "OK");
+				resp.addHeader("Content-Type", "text/html");
+				return res.accept(resp);
+			},
+			None => {
+				const string body = new string("Step not found");
+				let resp = new HTTPResponse(body, "404", "Not Found");
+				resp.addHeader("Content-Type", "text/plain");
+				return res.accept(resp);
+			}
+		};
+	};
+
+	fn stepPath(const string step) -> option::<string> {
+		if step == "installation" return opt.Some::<string>(new string("./public/tutorial/steps/installation.html"));
+		if step == "first-project" return opt.Some::<string>(new string("./public/tutorial/steps/first-project.html"));
+		if step == "customizing" return opt.Some::<string>(new string("./public/tutorial/steps/customizing.html"));
+		if step == "strings" return opt.Some::<string>(new string("./public/tutorial/steps/strings.html"));
+		if step == "conditionals" return opt.Some::<string>(new string("./public/tutorial/steps/conditionals.html"));
+		if step == "guessing" return opt.Some::<string>(new string("./public/tutorial/steps/guessing.html"));
+		if step == "loops" return opt.Some::<string>(new string("./public/tutorial/steps/loops.html"));
+		if step == "random" return opt.Some::<string>(new string("./public/tutorial/steps/random.html"));
+		if step == "classes" return opt.Some::<string>(new string("./public/tutorial/steps/classes.html"));
+		if step == "methods" return opt.Some::<string>(new string("./public/tutorial/steps/methods.html"));
+		if step == "modules" return opt.Some::<string>(new string("./public/tutorial/steps/modules.html"));
+		if step == "roster" return opt.Some::<string>(new string("./public/tutorial/steps/roster.html"));
+		if step == "ownership" return opt.Some::<string>(new string("./public/tutorial/steps/ownership.html"));
+		if step == "results" return opt.Some::<string>(new string("./public/tutorial/steps/results.html"));
+		if step == "templates" return opt.Some::<string>(new string("./public/tutorial/steps/templates.html"));
+		if step == "wrapup" return opt.Some::<string>(new string("./public/tutorial/steps/wrapup.html"));
+		return opt.None::<string>();
+	};
+
+
+	AflatServer init() {
+		return my;
+	};
+};
+
+
+fn main() {
+	let server = AflatServer();
+	server.listen();
+	return 0;
+};
+
+
+File: mod.af
+Content:
+.needs <std>
+import string from "String";
+import {system, envVar} from "System" under sys;
+import File from "files";
+import {createFile, openFile} from "files" under fs;
+import result from "Utils/result";
+import {accept, reject, resultWrapper} from "Utils/result" under res;
+import Error from "Utils/Error";
+import {info, debug, warning, error} from "../flat_log" under log;
+
+mutable int sandboxCounter = 0;
+
+fn nextSandboxRoot() -> string {
+	sandboxCounter = sandboxCounter + 1;
+	return `./tmp/aflat-sandbox/run-{sandboxCounter}`;
+};
+
+fn ensureDirectory(const string path) -> bool {
+	const string command = `mkdir -p {path}`;
+	return sys.system(command.cstr()) == 0;
+};
+
+fn cleanupSandbox(const string path) {
+	const string command = `rm -rf {path}`;
+	sys.system(command.cstr());
+};
+
+fn writeTextFile(const string path, const string body) -> bool {
+	match fs.createFile(path.cstr()) {
+		Ok(file) => {
+			file.write(body.cstr());
+			file.close();
+			return true;
+		},
+		Err(_) => {
+			return false;
+		}
+	};
+};
+
+fn readFileContents(const string path) -> string! {
+	match fs.openFile(path.cstr()) {
+		Ok(file) => {
+			match file.readToEnd() {
+				Ok(contents) => {
+					file.close();
+	;				return res.accept(contents);
+				},
+				Err(err) => {
+					file.close();
+					return res.reject::<string>(err);
+				}
+			};
+		},
+		Err(err) => {
+			return res.reject::<string>(err);
+		}
+	};
+};
+
+fn resolveDockerImage() -> string {
+	const adr override = sys.envVar("AFLAT_SANDBOX_IMAGE");
+	if override != NULL {
+		return new string(override);
+	};
+	return new string("deforestt/aflat-sandbox:latest");
+};
+
+fn ensureSandboxImage(const string image) -> bool {
+	log.debug(`Checking availability of sandbox image {image}`);
+	const string inspectCmd = `docker image inspect {image} > /dev/null 2>&1`;
+	if sys.system(inspectCmd.cstr()) == 0 {
+		return true;
+	};
+
+		log.warning(`Sandbox image {image} not yet available; waiting for background pull to finish`);
+		mutable int attempts = 0;
+		while attempts < 60 {
+			sys.system("sleep 1");
+			if sys.system(inspectCmd.cstr()) == 0 {
+				log.info(`Sandbox image {image} became available after waiting {attempts + 1} seconds`);
+				return true;
+			};
+			attempts = attempts + 1;
+		};
+
+		log.warning(`Sandbox image {image} still missing after waiting; attempting direct pull`);
+		const string pullCmd = `docker pull {image}`;
+		if sys.system(pullCmd.cstr()) == 0 {
+			log.info(`Direct pull for sandbox image {image} succeeded`);
+			return true;
+		};
+
+		log.error(`Sandbox image {image} is not available; docker pull failed`);
+		return false;
+};
+
+export fn runAflat(string modualMain) -> string! {
+	log.info(`#runAflat: received sandbox execution request ({modualMain.len()} bytes)`);
+	log.debug("Ensuring sandbox root directory exists");
+	if !ensureDirectory("./tmp/aflat-sandbox") {
+		log.error("Failed to prepare sandbox root directory ./tmp/aflat-sandbox");
+		return res.reject::<string>(new Error("Failed to prepare sandbox root"));
+	};
+
+	const string sandboxRoot = nextSandboxRoot();
+	const string srcDir = `{sandboxRoot}/src`;
+	const string cfgPath = `{sandboxRoot}/aflat.cfg`;
+	const string mainPath = `{srcDir}/main.af`;
+	const string binDir = `{sandboxRoot}/bin`;
+	const string logPath = `{sandboxRoot}/stdout.log`;
+	log.debug(`Sandbox root {sandboxRoot}`);
+	log.debug(`Source path {mainPath}`);
+
+	if !ensureDirectory(srcDir) {
+		log.error(`Failed to create sandbox source directory at {srcDir}`);
+		cleanupSandbox(sandboxRoot);
+		return res.reject::<string>(new Error(`Failed to create sandbox directory at {srcDir}`));
+	};
+
+	if !ensureDirectory(binDir) {
+		log.error(`Failed to create sandbox bin directory at {binDir}`);
+		cleanupSandbox(sandboxRoot);
+		return res.reject::<string>(new Error(`Failed to create sandbox bin directory at {binDir}`));
+	};
+
+	const string configBody = "[build]\nmain = main\n\n[dependencies]\n";
+	if !writeTextFile(cfgPath, configBody) {
+		log.error(`Failed writing sandbox aflat.cfg to {cfgPath}`);
+		cleanupSandbox(sandboxRoot);
+		return res.reject::<string>(new Error("Failed to create sandbox configuration"));
+	};
+
+	if !writeTextFile(mainPath, modualMain) {
+		log.error(`Failed writing sandbox source to {mainPath}`);
+		cleanupSandbox(sandboxRoot);
+		return res.reject::<string>(new Error("Failed to write sandbox source"));
+	};
+
+	match fs.createFile(logPath.cstr()) {
+		Ok(file) => {
+			file.close();
+		},
+		Err(_) => {
+			log.warning(`Unable to create sandbox stdout log at {logPath}`);
+		}
+	};
+
+	const string image = resolveDockerImage();
+	log.info(`Using sandbox image {image}`);
+	if !ensureSandboxImage(image) {
+		cleanupSandbox(sandboxRoot);
+		return res.reject::<string>(new Error(`Failed to prepare sandbox image {image}`));
+	};
+
+	const int sandboxTimeoutMinutes = 4;
+	const string dockerCmd = `timeout {sandboxTimeoutMinutes}m docker run --rm -v {sandboxRoot}:/workspace -w /workspace {image} -c 'aflat run -q' > {logPath} 2>&1`;
+	log.debug(`Executing sandbox command: {dockerCmd}`);
+	const int status = sys.system(dockerCmd.cstr());
+	log.debug(`Sandbox process exited with status {status}`);
+	mutable string runOutput = new string("");
+
+	match readFileContents(logPath) {
+		Ok(contents) => {
+			runOutput = contents;
+		},
+		Err(err) => {
+			log.error(`Failed to read sandbox log output from {logPath}: {err}`);
+			cleanupSandbox(sandboxRoot);
+			return res.reject::<string>(err);
+		}
+	};
+
+	cleanupSandbox(sandboxRoot);
+	log.debug(`Cleaned up sandbox directory {sandboxRoot}`);
+
+	if status == 124 {
+		log.error(`Sandbox run exceeded {sandboxTimeoutMinutes} minute timeout`);
+		return res.reject::<string>(new Error(`Sandbox run exceeded {sandboxTimeoutMinutes} minute timeout\n{runOutput}`));
+	};
+
+	if status != 0 {
+		log.error(`Sandbox run failed with exit code {status}`);
+		return res.reject::<string>(new Error(`Sandbox run failed with exit code {status}\n{runOutput}`));
+	};
+
+	log.info("Sandbox run completed successfully");
+	return res.accept(runOutput);
+};
+
+
+File: mod.af
+Content:
+.needs <std>
+import Content from "Web/Content";
+
+class SandboxJS signs Content {
+    fn init() {
+        my.loadFile("./public/sandbox.js");
+    };
+};
+
+
+File: mod.af
+Content:
+.needs <std>
+import Content from "Web/Content";
+
+class SandboxPage signs Content {
+    fn init() {
+        my.loadFile("./public/sandbox.html");
+    };
+};
+
+
+File: styles.css
+Content:
+:root {
+  --bg: #04050b;
+  --surface: #0c1220;
+  --panel: #111a2f;
+  --panel-alt: #1a2540;
+  --text: #f8fbff;
+  --muted: #afc2dd;
+  --accent: #7dd3fc;
+  --accent-strong: #c084fc;
+  --border: rgba(148, 163, 184, 0.35);
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, rgba(125, 211, 252, 0.25), transparent 45%),
+    radial-gradient(circle at 20% 20%, rgba(192, 132, 252, 0.25), transparent 45%), var(--bg);
+  color: var(--text);
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.nav-brand {
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.nav-link {
+  border-radius: 999px;
+  padding: 0.4rem 0.95rem;
+  border: 1px solid transparent;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  border-color: rgba(125, 211, 252, 0.5);
+  background: rgba(125, 211, 252, 0.15);
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.hero {
+  background: linear-gradient(135deg, rgba(17, 26, 47, 0.95), rgba(17, 26, 47, 0.8));
+  border-radius: 1.75rem;
+  padding: 2.5rem;
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  box-shadow: 0 30px 80px rgba(4, 5, 11, 0.6);
+}
+
+.hero-content {
+  max-width: 640px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+h1 {
+  margin: 0.4rem 0 0.8rem;
+  font-size: clamp(2.4rem, 4vw, 3.5rem);
+}
+
+.lead {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.powered {
+  margin: 0.6rem 0 0;
+  color: #e0ecff;
+  font-size: 0.95rem;
+}
+
+.hero-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pill {
+  background: var(--accent);
+  border: none;
+  color: #031425;
+  border-radius: 999px;
+  padding: 0.65rem 1.35rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(125, 211, 252, 0.45);
+}
+
+.ghost {
+  border-radius: 999px;
+  padding: 0.65rem 1.35rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.hero-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.meta-card {
+  background: rgba(3, 9, 20, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.meta-card span {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+}
+
+.meta-card strong {
+  display: block;
+  font-size: 1.2rem;
+  margin: 0.35rem 0 0.2rem;
+}
+
+.meta-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.panel {
+  background: var(--panel);
+  border-radius: 1.5rem;
+  border: 1px solid var(--border);
+  padding: 1.75rem;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.08);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.info-grid article {
+  background: var(--panel-alt);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.info-grid h2 {
+  margin-top: 0;
+}
+
+.info-grid p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.panel-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.command-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.command-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.command-button {
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  padding: 0.85rem 1rem;
+  background: rgba(8, 12, 24, 0.65);
+  color: var(--text);
+  font-size: 0.98rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border 0.2s, color 0.2s, background 0.2s;
+}
+
+.command-button.active {
+  border-color: var(--accent-strong);
+  background: rgba(192, 132, 252, 0.2);
+  color: var(--accent);
+}
+
+.command-display {
+  border-radius: 1rem;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  background: #030812;
+  padding: 1.25rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.command-label {
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.command-tip {
+  margin: 0;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-pill {
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.filter-pill.active {
+  background: rgba(125, 211, 252, 0.2);
+  border-color: var(--accent);
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+}
+
+.module-card {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(10, 16, 28, 0.9);
+  transition: transform 0.2s ease, border 0.2s ease;
+}
+
+.module-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(192, 132, 252, 0.8);
+}
+
+.module-card.hidden {
+  display: none;
+}
+
+.module-card h3 {
+  margin: 0 0 0.4rem;
+}
+
+.module-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.timeline ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: cadence;
+}
+
+.timeline li {
+  counter-increment: cadence;
+  padding: 1rem 1rem 1rem 3rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(10, 16, 28, 0.8);
+  position: relative;
+  margin-bottom: 0.8rem;
+}
+
+.timeline li::before {
+  content: counter(cadence);
+  position: absolute;
+  left: 1rem;
+  top: 1.1rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #04131f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.timeline strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.timeline span {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding-top: 1rem;
+}
+
+.tutorial { gap: 1.5rem; }
+.tutorial .hero { margin-bottom: 0; }
+
+.tutorial-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 260px) 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.step-menu {
+  background: var(--panel);
+  border-radius: 1.2rem;
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.step-menu h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.step-button {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  padding: 0.55rem 0.75rem;
+  background: rgba(12, 18, 32, 0.6);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+
+.step-button.active {
+  border-color: var(--accent-strong);
+  background: rgba(192, 132, 252, 0.18);
+  color: var(--accent);
+}
+
+.tutorial-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tutorial-section {
+  background: var(--panel);
+  border-radius: 1.25rem;
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.05);
+}
+
+.tutorial-section h2 {
+  margin-top: 0;
+}
+
+.tutorial-step { display: none; }
+.tutorial-step.active { display: block; }
+
+.step-navigation {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.prev-step,
+.next-step {
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  padding: 0.55rem 1.4rem;
+  cursor: pointer;
+}
+
+.prev-step {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  color: var(--text);
+}
+
+.next-step {
+  background: var(--accent);
+  color: #031425;
+  margin-left: auto;
+}
+
+.tutorial-section pre {
+  background: #020615;
+  border-radius: 0.85rem;
+  padding: 1rem;
+  overflow-x: auto;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  color: #cbd5ff;
+}
+
+.tutorial-section code {
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace;
+  font-size: 0.92rem;
+}
+
+.examples-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.example-card {
+  background: var(--panel-alt);
+  border-radius: 1.2rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.example-card pre {
+  margin: 0;
+}
+
+.tutorial-section ul,
+.tutorial-section ol {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.sandbox-panel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.sandbox-intro p {
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+.sandbox-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.sandbox-form label {
+  font-weight: 600;
+}
+
+.sandbox-form textarea {
+  width: 100%;
+  min-height: 320px;
+  border-radius: 1rem;
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  background: #030a17;
+  color: var(--text);
+  padding: 1rem;
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace;
+  font-size: 0.95rem;
+  resize: vertical;
+}
+
+.sandbox-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.sandbox-output {
+  background: #030812;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  padding: 1rem;
+}
+
+.output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.output-status {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.output-status[data-tone="success"] { color: #4ade80; }
+.output-status[data-tone="error"] { color: #f87171; }
+.output-status[data-tone="pending"] { color: #facc15; }
+.output-status[data-tone="info"] { color: #93c5fd; }
+
+.sandbox-output pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace;
+  min-height: 200px;
+}
+
+.sandbox-snippets {
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  padding-top: 1rem;
+}
+
+.snippet-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 1.8rem;
+  }
+
+  .page {
+    padding: 2rem 1rem 3rem;
+  }
+
+  .tutorial-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .step-menu {
+    position: static;
+  }
+}
+
+
+File: sandbox.html
+Content:
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AFlat Sandbox - updated-server</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page sandbox-page">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link" href="/tutorial">Tutorial</a>
+          <a class="nav-link" href="/examples">Examples</a>
+          <a class="nav-link active" href="/sandbox">Sandbox</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">Live runner</p>
+          <h1>Compile and run an AFlat main file</h1>
+          <p class="lead">
+            Paste a complete <code>main.af</code> file, press Run, and the server will spin up an
+            isolated Docker sandbox that builds and executes it with the AFlat toolchain.
+          </p>
+          <p class="powered">
+            The sandbox uses the same Dockerfile.sandbox image that ships in this repo, so whatever
+            works here will work locally too.
+          </p>
+        </div>
+      </header>
+
+      <section class="panel sandbox-panel">
+        <div class="sandbox-intro">
+          <h2>Editor</h2>
+          <p>
+            The snippet must include its own `.needs` declarations and a `main` function. We mount it
+            as <code>src/main.af</code>, call <code>aflat build</code>, and stream STDOUT below.
+          </p>
+        </div>
+        <form class="sandbox-form" id="sandbox-form">
+          <label for="sandbox-code">Source (main.af)</label>
+          <textarea id="sandbox-code" name="code" spellcheck="false">.needs &lt;std&gt;
+import {print} from "String" under str;
+
+fn main() -> int {
+    str.print("Hello from the sandbox!\n");
+    return 0;
+};
+</textarea>
+          <div class="sandbox-actions">
+            <button class="pill" id="sandbox-run" type="submit">Run code</button>
+            <button class="ghost" id="sandbox-reset" type="button">Reset sample</button>
+          </div>
+        </form>
+        <div class="sandbox-output">
+          <div class="output-header">
+            <h3>Output</h3>
+            <span class="output-status" id="sandbox-status">Idle</span>
+          </div>
+          <pre id="sandbox-output">Click "Run code" to see stdout...</pre>
+        </div>
+        <div class="sandbox-snippets">
+          <h3>Need inspiration?</h3>
+          <div class="snippet-buttons">
+            <button class="ghost" data-snippet="hello">Hello world</button>
+            <button class="ghost" data-snippet="dice">Random dice</button>
+            <button class="ghost" data-snippet="error">Intentional failure</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        updated-server - Sandbox requests fan out to Docker and stream real build logs
+      </footer>
+    </div>
+    <script defer src="/sandbox.js"></script>
+  </body>
+</html>
+
+
+File: sandbox.js
+Content:
+const sandbox = (() => {
+  const textarea = document.getElementById("sandbox-code");
+  const output = document.getElementById("sandbox-output");
+  const status = document.getElementById("sandbox-status");
+  const runButton = document.getElementById("sandbox-run");
+  const resetButton = document.getElementById("sandbox-reset");
+  const snippetButtons = Array.from(document.querySelectorAll("[data-snippet]"));
+
+  const samples = {
+    hello: `.needs <std>
+import {print} from "String" under str;
+
+fn main() -> int {
+    str.print("Hello from the sandbox!\n");
+    return 0;
+};`,
+    dice: `.needs <std>
+import Random from "math";
+import {print} from "String" under str;
+
+fn main() -> int {
+    Random rng = new Random();
+    const int roll = rng.nextInt(6) + 1;
+    str.print(\`You rolled a {roll}!\n\`);
+    return 0;
+};`,
+    error: `.needs <std>
+import {print} from "String" under str;
+
+fn main() -> int {
+    str.print("About to panic...\n");
+    panic("boom");
+};`
+  };
+
+  const setStatus = (label, tone) => {
+    if (!status) return;
+    status.textContent = label;
+    status.dataset.tone = tone;
+  };
+
+  const setOutput = (text) => {
+    if (!output) return;
+    output.textContent = text || "(no output)";
+  };
+
+  const resetSample = () => {
+    if (!textarea) return;
+    textarea.value = samples.hello;
+    setStatus("Sample loaded", "info");
+    setOutput('Click "Run code" to see stdout...');
+  };
+
+  const run = async () => {
+    if (!textarea || !runButton) return;
+    const source = textarea.value.trim();
+    if (!source) {
+      setStatus("Enter code first", "error");
+      setOutput("No AFlat source provided.");
+      return;
+    }
+
+    try {
+      runButton.disabled = true;
+      setStatus("Running...", "pending");
+      setOutput("Building project inside Docker...");
+
+      const response = await fetch("/sandbox/run", {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: source
+      });
+
+      const text = await response.text();
+      if (response.ok) {
+        setStatus("Completed", "success");
+        setOutput(text);
+      } else {
+        setStatus("Failed", "error");
+        setOutput(text || "Sandbox run failed.");
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus("Error", "error");
+      setOutput("Unable to reach the sandbox endpoint.");
+    } finally {
+      if (runButton) runButton.disabled = false;
+    }
+  };
+
+  if (snippetButtons.length && textarea) {
+    snippetButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.snippet;
+        if (key && samples[key]) {
+          textarea.value = samples[key];
+          setStatus(`Loaded ${btn.textContent}`, "info");
+          setOutput("Ready to run.");
+        }
+      });
+    });
+  }
+
+  if (resetButton) {
+    resetButton.addEventListener("click", resetSample);
+  }
+
+  if (runButton) {
+    runButton.addEventListener("click", (event) => {
+      console.log("running sandbox");
+      event.preventDefault();
+      run();
+    });
+  }
+
+  resetSample();
+})();
+
+
+File: index.html
+Content:
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>updated-server - Welcome Hub</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link active" href="/">Home</a>
+          <a class="nav-link" href="/tutorial">Tutorial</a>
+          <a class="nav-link" href="/examples">Examples</a>
+          <a class="nav-link" href="/sandbox">Sandbox</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">AFlat Toolchain</p>
+          <h1>Welcome to the AFlat Programming Language</h1>
+          <p class="lead" id="welcome-line">
+            A bigger, bolder sandbox for staging AFlat experiments, creative endpoints, and HTTP
+            drills.
+          </p>
+          <p class="powered">
+            This entire site is powered by the AFlat stack — rendered via Web/Content and served by
+            AflatServer.
+          </p>
+          <div class="hero-actions">
+            <button class="pill" data-message="Compile everything with 'aflat build'.">Build</button>
+            <button class="pill" data-message="Boot the server locally using 'aflat run'.">Run</button>
+            <button class="pill" data-message="Guard regressions with 'aflat test'.">Test</button>
+            <a class="ghost" href="#modules">Explore modules</a>
+          </div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-card">
+            <span>Stack</span>
+            <strong>AFlat - HTTP</strong>
+            <p>Single binary server with Content-powered UI.</p>
+          </div>
+          <div class="meta-card">
+            <span>Entry point</span>
+            <strong>src/main.af</strong>
+            <p>AflatServer handles routing plus static assets.</p>
+          </div>
+          <div class="meta-card">
+            <span>Quickstart</span>
+            <strong>aflat run</strong>
+            <p>Launch and hit http://localhost:8000/.</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="panel info-grid">
+        <article>
+          <h2>Why this repo</h2>
+          <p>
+            updated-server ships as a ready-to-build reference. Clone it to demo HTTP endpoints,
+            content rendering, and std library workflows without scaffolding.
+          </p>
+        </article>
+        <article>
+          <h2>What's inside</h2>
+          <p>
+            A curated README walk-through, minimal server wiring, and an expressive landing page you
+            can tweak or replace as you prototype.
+          </p>
+        </article>
+        <article>
+          <h2>Next moves</h2>
+          <p>
+            Fork, create a module, and wire a new endpoint. updated-server thrives when you treat it
+            like a sketchpad.
+          </p>
+        </article>
+      </section>
+
+      <section class="panel command-center" id="commands">
+        <div class="panel-header">
+          <h2>Command deck</h2>
+          <p>Highlight a command to refresh the quick brief.</p>
+        </div>
+        <div class="command-grid">
+          <div class="command-list">
+            <button class="command-button"
+              data-title="aflat build"
+              data-description="Compile sources defined in aflat.cfg."
+              data-tip="Outputs bin/a.out ready for the next run step."
+            >aflat build</button>
+            <button class="command-button"
+              data-title="aflat run"
+              data-description="Build and boot updated-server on localhost:8000."
+              data-tip="Keep a terminal open so logs stream as you browse."
+            >aflat run</button>
+            <button class="command-button"
+              data-title="aflat test"
+              data-description="Execute test/test.af and confirm regressions are caught."
+              data-tip="Great for validating new modules before merging."
+            >aflat test</button>
+            <button class="command-button"
+              data-title="aflat docs src/main.af"
+              data-description="Inspect the classes and functions inside AflatServer."
+              data-tip="Use docs to onboard newcomers or recall signatures quickly."
+            >aflat docs src/main.af</button>
+            <button class="command-button"
+              data-title="aflat docs String"
+              data-description="Review the std String module for slicing, casing, and conversions."
+              data-tip="String helpers power most templating tricks."
+            >aflat docs String</button>
+            <button class="command-button"
+              data-title="aflat module <name>"
+              data-description="Scaffold src/<name>/mod.af and register it under dependencies."
+              data-tip="Perfect for spinning up UI components or log utilities."
+            >aflat module &lt;name&gt;</button>
+          </div>
+          <div class="command-display" aria-live="polite">
+            <p class="command-label" id="command-title">aflat build</p>
+            <p id="command-description">Compile sources defined in aflat.cfg.</p>
+            <p class="command-tip" id="command-tip">Outputs bin/a.out ready for the next run step.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel modules" id="modules">
+        <div class="panel-header">
+          <h2>Std library flight plan</h2>
+          <p>Select a filter to view the relevant module clusters cited in README.md.</p>
+        </div>
+        <div class="filter-row">
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="runtime">Runtime</button>
+          <button class="filter-pill" data-filter="collections">Collections</button>
+          <button class="filter-pill" data-filter="http">HTTP</button>
+          <button class="filter-pill" data-filter="utility">Utilities</button>
+        </div>
+        <div class="module-grid">
+          <article class="module-card" data-group="runtime">
+            <h3>Runtime & strings</h3>
+            <p>std, std-cmp, Memory, String, strings, System</p>
+          </article>
+          <article class="module-card" data-group="runtime">
+            <h3>Numerics & IO</h3>
+            <p>math, io, files, DateTime</p>
+          </article>
+          <article class="module-card" data-group="collections">
+            <h3>Collections toolkit</h3>
+            <p>Collections, Vector, Iterator, Enumerator, Scroller, Tuple, unordered_map</p>
+          </article>
+          <article class="module-card" data-group="http">
+            <h3>Networking stack</h3>
+            <p>HTTP core, Endpoint helpers, HTTP/Server, Middleware, request.c</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Data & serialization</h3>
+            <p>JSON, JSON/Parse, JSON/Property</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Result & error helpers</h3>
+            <p>Utils/option, Utils/Option, Utils/result, Utils/Error, Utils/Error/Render</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Productivity suite</h3>
+            <p>Utils/Functions, Defer, Map, Object, Properties, Observable</p>
+          </article>
+          <article class="module-card" data-group="utility">
+            <h3>Testing & concurrency</h3>
+            <p>ATest, concurrency, CLArgs</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel timeline">
+        <div class="panel-header">
+          <h2>Mission cadence</h2>
+          <p>Use this loop to keep work moving fast.</p>
+        </div>
+        <ol>
+          <li>
+            <strong>Initialize</strong>
+            <span>Run <code>aflat module</code> and make your canvas.</span>
+          </li>
+          <li>
+            <strong>Build & observe</strong>
+            <span>Pair <code>aflat build</code> with logs to stay aware of changes.</span>
+          </li>
+          <li>
+            <strong>Test & review</strong>
+            <span>Lean on <code>aflat test</code> and <code>aflat docs</code> before sharing.</span>
+          </li>
+          <li>
+            <strong>Ship & iterate</strong>
+            <span>Capture new learnings on this page for the next mission.</span>
+          </li>
+        </ol>
+      </section>
+
+      <footer>
+        updated-server - Powered by the AFlat standard library - Built bold on HTML, CSS, and JS
+      </footer>
+    </div>
+    <script defer src="/index.js"></script>
+  </body>
+</html>
+
+
+File: examples.html
+Content:
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AFlat Examples - updated-server</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page tutorial">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link" href="/tutorial">Tutorial</a>
+          <a class="nav-link active" href="/examples">Examples</a>
+          <a class="nav-link" href="/sandbox">Sandbox</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">AFlat programming language</p>
+          <h1>Example gallery</h1>
+          <p class="lead">
+            Copy, remix, and extend these focused samples built straight from the tutorial. Each one
+            demonstrates a core part of the language.
+          </p>
+          <p class="powered">
+            Served live from updated-server with AFlat's Web/Content helper, so tweaks show up as soon
+            as you save.
+          </p>
+        </div>
+      </header>
+
+      <section class="tutorial-section">
+        <h2>Quick-start snippets</h2>
+        <div class="examples-grid">
+          <article class="example-card">
+            <h3>Hello world</h3>
+            <p>Minimal entry point with std library and io helper.</p>
+            <pre><code>.needs &lt;std&gt;
+import * from "io" under io;
+
+fn main() -> int {
+    io.print("Hello, world!\n");
+    return 0;
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Personalized greeting</h3>
+            <p>Prompt the user and use string interpolation.</p>
+            <pre><code>.needs &lt;std&gt;
+import string from "String";
+import { readString, print } from "String" under str;
+
+fn main() -> int {
+    let name = str.readString("Name? ");
+    str.print(`Hello, {name}!\n`);
+    return 0;
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Guarded access</h3>
+            <p>Compare input using if/else.</p>
+            <pre><code>if name == "AFlat" {
+    str.print("Welcome back!\n");
+} else {
+    str.print("Access denied.\n");
+};</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="tutorial-section">
+        <h2>Richer programs</h2>
+        <div class="examples-grid">
+          <article class="example-card">
+            <h3>Guessing game loop</h3>
+            <pre><code>for mutable int i = 0; i &lt; 5; i = i + 1 {
+    let guess = str.readString("Guess: ");
+    let guessInt = guess.toInt()!;
+
+    if guessInt == secret {
+        str.print("You got it!\n");
+        break;
+    } else if guessInt &lt; secret
+        str.print("Too low\n")
+    else
+        str.print("Too high\n");
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Student class</h3>
+            <pre><code>class Student {
+    mutable int id;
+    mutable string name = "";
+    mutable int average;
+
+    fn init(int id, string name, int average) -> Student {
+        my.id = id;
+        my.name = name;
+        my.average = average;
+    };
+};</code></pre>
+          </article>
+          <article class="example-card">
+            <h3>Roster printer</h3>
+            <pre><code>let roster = [
+    new Student(1, "John", 90),
+    new Student(2, "Jane", 95)
+];
+
+foreach s in roster {
+    s.printInfo();
+};</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="tutorial-section">
+        <h2>Ownership + result mashup</h2>
+        <pre><code>import {accept, reject} from "Utils/result" under pr;
+
+fn addAssignment(Student &&student, Assignment &&assignment) -> bool! {
+    student.addAssignment($assignment);
+    return true;
+};
+
+fn divide(int a, int b) -> int! {
+    if b == 0
+        return pr.reject::<int>(Error("Cannot divide by zero"));
+    return a / b;
+};</code></pre>
+        <p>
+          These helpers showcase how ownership moves through <code>&amp;&amp;</code> parameters while the
+          <code>!</code> shorthand lets you bubble errors without extra boilerplate.
+        </p>
+      </section>
+
+      <footer>
+        updated-server - AFlat example suite running on the same server that serves this page
+      </footer>
+    </div>
+    <script defer src="/index.js"></script>
+  </body>
+</html>
+
+
+File: tutorial.html
+Content:
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AFlat Tutorial - updated-server</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page tutorial">
+      <nav class="top-nav">
+        <div class="nav-brand">updated-server</div>
+        <div class="nav-links">
+          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link active" href="/tutorial">Tutorial</a>
+          <a class="nav-link" href="/examples">Examples</a>
+          <a class="nav-link" href="/sandbox">Sandbox</a>
+        </div>
+      </nav>
+      <header class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">AFlat programming language</p>
+          <h1>First Steps with AFlat</h1>
+          <p class="lead">
+            Click through each stage to install the toolchain, scaffold projects, manipulate strings,
+            build classes, manage ownership, and ship a roster manager.
+          </p>
+          <p class="powered">
+            Every section is served via the AFlat API, so updating a single step hot-reloads the
+            content without redeploying the rest of the page.
+          </p>
+        </div>
+      </header>
+
+      <section class="tutorial-layout">
+        <aside class="step-menu">
+          <h2>Steps</h2>
+          <div class="step-list">
+            <button class="step-button active" data-step="installation">Installation</button>
+            <button class="step-button" data-step="first-project">First project</button>
+            <button class="step-button" data-step="customizing">Make it yours</button>
+            <button class="step-button" data-step="strings">Strings</button>
+            <button class="step-button" data-step="conditionals">Conditionals</button>
+            <button class="step-button" data-step="guessing">Guessing game</button>
+            <button class="step-button" data-step="loops">Loops</button>
+            <button class="step-button" data-step="random">Random numbers</button>
+            <button class="step-button" data-step="classes">Classes</button>
+            <button class="step-button" data-step="methods">Methods & vectors</button>
+            <button class="step-button" data-step="modules">Modules</button>
+            <button class="step-button" data-step="roster">Roster app</button>
+            <button class="step-button" data-step="ownership">Ownership</button>
+            <button class="step-button" data-step="results">result union</button>
+            <button class="step-button" data-step="templates">Templates</button>
+            <button class="step-button" data-step="wrapup">Wrap-up</button>
+          </div>
+        </aside>
+
+        <div class="tutorial-content">
+          <article class="tutorial-section" id="tutorial-stage">
+            <p>Loading tutorial step…</p>
+          </article>
+          <div class="step-navigation">
+            <button class="prev-step" id="tutorial-prev" disabled>Previous</button>
+            <button class="next-step" id="tutorial-next">Next step</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        updated-server - AFlat tutorial served straight from the language itself
+      </footer>
+    </div>
+    <script defer src="/index.js"></script>
+  </body>
+</html>
+
+
+File: metadata.json
+Content:
+{
+    "processed_files": [
+        {
+            "path": "flat_log.aflat.cfg",
+            "chunks": 1,
+            "size": 117,
+            "lines": 7,
+            "words": 15
+        },
+        {
+            "path": "Dockerfile",
+            "chunks": 1,
+            "size": 916,
+            "lines": 38,
+            "words": 128
+        },
+        {
+            "path": "compact.yml",
+            "chunks": 1,
+            "size": 257,
+            "lines": 11,
+            "words": 23
+        },
+        {
+            "path": "aflat.cfg",
+            "chunks": 1,
+            "size": 328,
+            "lines": 10,
+            "words": 26
+        },
+        {
+            "path": "fly.toml",
+            "chunks": 1,
+            "size": 460,
+            "lines": 22,
+            "words": 59
+        },
+        {
+            "path": ".gitignore",
+            "chunks": 1,
+            "size": 90,
+            "lines": 9,
+            "words": 13
+        },
+        {
+            "path": "src/main.af",
+            "chunks": 1,
+            "size": 5216,
+            "lines": 139,
+            "words": 513
+        },
+        {
+            "path": "src/test/test.af",
+            "chunks": 1,
+            "size": 1804,
+            "lines": 65,
+            "words": 169
+        },
+        {
+            "path": "src/flat_log/mod.af",
+            "chunks": 1,
+            "size": 698,
+            "lines": 25,
+            "words": 85
+        },
+        {
+            "path": "src/flat_log/test/test.af",
+            "chunks": 1,
+            "size": 445,
+            "lines": 18,
+            "words": 56
+        },
+        {
+            "path": "src/flat_log/Logger/mod.af",
+            "chunks": 1,
+            "size": 1711,
+            "lines": 75,
+            "words": 228
+        },
+        {
+            "path": "src/UI/Tutorial/mod.af",
+            "chunks": 1,
+            "size": 153,
+            "lines": 8,
+            "words": 17
+        },
+        {
+            "path": "src/UI/Index/mod.af",
+            "chunks": 1,
+            "size": 146,
+            "lines": 8,
+            "words": 17
+        },
+        {
+            "path": "src/UI/Assets/IndexJS/mod.af",
+            "chunks": 1,
+            "size": 147,
+            "lines": 8,
+            "words": 17
+        },
+        {
+            "path": "src/UI/Assets/Styles/mod.af",
+            "chunks": 1,
+            "size": 148,
+            "lines": 8,
+            "words": 17
+        },
+        {
+            "path": "src/UI/Examples/mod.af",
+            "chunks": 1,
+            "size": 153,
+            "lines": 8,
+            "words": 17
+        },
+        {
+            "path": "public/styles.css",
+            "chunks": 1,
+            "size": 9205,
+            "lines": 523,
+            "words": 1076
+        },
+        {
+            "path": "public/index.html",
+            "chunks": 1,
+            "size": 8742,
+            "lines": 206,
+            "words": 663
+        },
+        {
+            "path": "public/examples.html",
+            "chunks": 1,
+            "size": 4440,
+            "lines": 145,
+            "words": 420
+        },
+        {
+            "path": "public/index.js",
+            "chunks": 1,
+            "size": 4486,
+            "lines": 149,
+            "words": 441
+        },
+        {
+            "path": "public/tutorial.html",
+            "chunks": 1,
+            "size": 3317,
+            "lines": 74,
+            "words": 215
+        },
+        {
+            "path": "public/tutorial/steps/customizing.html",
+            "chunks": 1,
+            "size": 339,
+            "lines": 12,
+            "words": 37
+        },
+        {
+            "path": "public/tutorial/steps/first-project.html",
+            "chunks": 1,
+            "size": 1053,
+            "lines": 21,
+            "words": 98
+        },
+        {
+            "path": "public/tutorial/steps/ownership.html",
+            "chunks": 1,
+            "size": 862,
+            "lines": 19,
+            "words": 87
+        },
+        {
+            "path": "public/tutorial/steps/templates.html",
+            "chunks": 1,
+            "size": 341,
+            "lines": 4,
+            "words": 28
+        },
+        {
+            "path": "public/tutorial/steps/results.html",
+            "chunks": 1,
+            "size": 595,
+            "lines": 19,
+            "words": 71
+        },
+        {
+            "path": "public/tutorial/steps/modules.html",
+            "chunks": 1,
+            "size": 440,
+            "lines": 5,
+            "words": 46
+        },
+        {
+            "path": "public/tutorial/steps/methods.html",
+            "chunks": 1,
+            "size": 610,
+            "lines": 21,
+            "words": 65
+        },
+        {
+            "path": "public/tutorial/steps/strings.html",
+            "chunks": 1,
+            "size": 664,
+            "lines": 17,
+            "words": 69
+        },
+        {
+            "path": "public/tutorial/steps/conditionals.html",
+            "chunks": 1,
+            "size": 568,
+            "lines": 18,
+            "words": 69
+        },
+        {
+            "path": "public/tutorial/steps/classes.html",
+            "chunks": 1,
+            "size": 751,
+            "lines": 27,
+            "words": 92
+        },
+        {
+            "path": "public/tutorial/steps/wrapup.html",
+            "chunks": 1,
+            "size": 238,
+            "lines": 4,
+            "words": 26
+        },
+        {
+            "path": "public/tutorial/steps/guessing.html",
+            "chunks": 1,
+            "size": 826,
+            "lines": 29,
+            "words": 96
+        },
+        {
+            "path": "public/tutorial/steps/installation.html",
+            "chunks": 1,
+            "size": 668,
+            "lines": 10,
+            "words": 66
+        },
+        {
+            "path": "public/tutorial/steps/random.html",
+            "chunks": 1,
+            "size": 990,
+            "lines": 32,
+            "words": 119
+        },
+        {
+            "path": "public/tutorial/steps/loops.html",
+            "chunks": 1,
+            "size": 922,
+            "lines": 30,
+            "words": 113
+        },
+        {
+            "path": "public/tutorial/steps/roster.html",
+            "chunks": 1,
+            "size": 2156,
+            "lines": 71,
+            "words": 236
+        }
+    ],
+    "skipped_files": [],
+    "summary": {
+        "total_files_processed": 37,
+        "total_words": 5533
+    }
+}
+
+File: hashes.json
+Content:
+{
+    "flat_log.aflat.cfg": "cf56b83cd6867c382ab668ef753aebcf",
+    "Dockerfile": "3cfc5d38e9c99a5ce9fe3c14e7c872c2",
+    "compact.yml": "ef37df1e226f7a71573c0a328ed2543d",
+    "aflat.cfg": "1a09770b3744e16b5f6b35d56f2feebc",
+    "fly.toml": "ca0673552c500885a691c2088a51bda4",
+    ".gitignore": "95b66274c86270c130fa9cf7408d4f23",
+    "src/main.af": "f6708e789d0157982765227cf1f02abb",
+    "src/test/test.af": "2c0f294333633c63132dbd1628aa32aa",
+    "src/flat_log/mod.af": "83e06575e4569dcf9f3abd4bbb3b7e94",
+    "src/flat_log/test/test.af": "adf299b52934780d8283df64287e560c",
+    "src/flat_log/Logger/mod.af": "80d993c726260745823e8376f32a8062",
+    "src/UI/Tutorial/mod.af": "e31107f366b98c671f8d06b8c4a3caf5",
+    "src/UI/Index/mod.af": "9ab54f7a41f9d73cdfa95786303fd8f8",
+    "src/UI/Assets/IndexJS/mod.af": "0310cd31a8b67bab051acf5b322ac041",
+    "src/UI/Assets/Styles/mod.af": "210f391a2646f6f9a1da20d3fdf62dc2",
+    "src/UI/Examples/mod.af": "46e9eea9e9cdf93ca5141ac5dfde81c2",
+    "public/styles.css": "61a576cfa36aa79f399cd848b4ac45f7",
+    "public/index.html": "5f429aea83966680d1264bfa6e07c5c6",
+    "public/examples.html": "b54938429b6afcf8f7d5de5342ee3ed4",
+    "public/index.js": "3706b318e4faa3bc2a0aded110890fcc",
+    "public/tutorial.html": "5a0d8ef540728655e63c11fcb411f11c",
+    "public/tutorial/steps/customizing.html": "decebd88f47808fb15bbf36221ba306b",
+    "public/tutorial/steps/first-project.html": "b9698fa2dbd23fc20133fdc4c92d183a",
+    "public/tutorial/steps/ownership.html": "5b2698d47ecc543c84bfd26308dbeb98",
+    "public/tutorial/steps/templates.html": "d9e6ec667869c6378a0fd2294b63eb59",
+    "public/tutorial/steps/results.html": "be3853cc72833d1cab8e67f04ea97f6d",
+    "public/tutorial/steps/modules.html": "8173319e5b99cd312ec1dff46d2c81e3",
+    "public/tutorial/steps/methods.html": "6ee846e2f4881c1baf02c5df873c2c2c",
+    "public/tutorial/steps/strings.html": "22a4292f1b74628f4fce3924ab6276d4",
+    "public/tutorial/steps/conditionals.html": "c4a96bcbc9afe5e025662afb85079614",
+    "public/tutorial/steps/classes.html": "09fa0de842ac9fceec9ad5b7d1460e38",
+    "public/tutorial/steps/wrapup.html": "aa83daffe1f52186e08c3e02040f16d4",
+    "public/tutorial/steps/guessing.html": "f4aeb23117dc4ee411d41a7c034528d1",
+    "public/tutorial/steps/installation.html": "36d95d80dcb12cecc6222446a12871ef",
+    "public/tutorial/steps/random.html": "b3d3d28092cda34f10f7f62e64676f5b",
+    "public/tutorial/steps/loops.html": "0f3457d893fd8b2b6d3f3231e3fcb709",
+    "public/tutorial/steps/roster.html": "5fdbc1baa1de87763e498e2f0d14e003"
+}
+
+File: aflat-server.txt
+Content:
 Unknown chunk type:
 {'header': '# updated-server', 'content': '\nThis project was generated with the AFlat toolchain. Use the commands below to build, run, test, and explore the codebase.\n\n'}
 
@@ -2078,5 +4258,7 @@ fn addGrade(vector::<Student> roster) -> bool {
     return 0;
 };</code></pre>
 </article>
+
+
 
 

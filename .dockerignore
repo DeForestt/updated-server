@@ -3,6 +3,5 @@
 **/.cache
 **/tmp
 **/node_modules
-bin
 sandbox-image.tar
 Dockerfile.sandbox

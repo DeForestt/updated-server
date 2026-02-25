@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-SANDBOX_IMAGE="${AFLAT_SANDBOX_IMAGE:-aflat-sandbox:latest}"
+SANDBOX_IMAGE="${AFLAT_SANDBOX_IMAGE:-deforestt/aflat-sandbox:latest}"
 
 start_dockerd() {
   mkdir -p /var/lib/docker /var/run
@@ -19,20 +19,25 @@ start_dockerd() {
   wait "$pid"
 }
 
-ensure_sandbox_image() {
+ensure_sandbox_image_async() {
   if docker image inspect "$SANDBOX_IMAGE" >/dev/null 2>&1; then
     return
   fi
 
-  if docker pull "$SANDBOX_IMAGE"; then
-    return
-  fi
-
-  echo "Failed to pull sandbox image $SANDBOX_IMAGE" >&2
-  exit 1
+  (
+    set +e
+    if docker pull "$SANDBOX_IMAGE"; then
+      docker image tag "$SANDBOX_IMAGE" "${SANDBOX_IMAGE%:*}:cached"
+      echo "Sandbox image pull completed"
+    else
+      echo "Sandbox image pull failed" >&2
+    fi
+  ) &
+  SANDBOX_PULL_PID=$!
+  export SANDBOX_PULL_PID
 }
 
 start_dockerd
-ensure_sandbox_image
+ensure_sandbox_image_async
 cd /project
 exec sudo -E ./bin/a.out "$@"

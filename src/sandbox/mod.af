@@ -63,7 +63,7 @@ fn resolveDockerImage() -> string {
 	if override != NULL {
 		return new string(override);
 	};
-	return new string("aflat-sandbox:latest");
+	return new string("deforestt/aflat-sandbox:latest");
 };
 
 fn ensureSandboxImage(const string image) -> bool {
@@ -73,19 +73,26 @@ fn ensureSandboxImage(const string image) -> bool {
 		return true;
 	};
 
-	log.warning(`Sandbox image {image} not yet available; waiting for background load to finish`);
-	mutable int attempts = 0;
-	while attempts < 60 {
-		sys.system("sleep 1");
-		if sys.system(inspectCmd.cstr()) == 0 {
-			log.info(`Sandbox image {image} became available after waiting {attempts + 1} seconds`);
+		log.warning(`Sandbox image {image} not yet available; waiting for background pull to finish`);
+		mutable int attempts = 0;
+		while attempts < 60 {
+			sys.system("sleep 1");
+			if sys.system(inspectCmd.cstr()) == 0 {
+				log.info(`Sandbox image {image} became available after waiting {attempts + 1} seconds`);
+				return true;
+			};
+			attempts = attempts + 1;
+		};
+
+		log.warning(`Sandbox image {image} still missing after waiting; attempting direct pull`);
+		const string pullCmd = `docker pull {image}`;
+		if sys.system(pullCmd.cstr()) == 0 {
+			log.info(`Direct pull for sandbox image {image} succeeded`);
 			return true;
 		};
-		attempts = attempts + 1;
-	};
 
-	log.error(`Sandbox image {image} is not available; background load likely failed`);
-	return false;
+		log.error(`Sandbox image {image} is not available; docker pull failed`);
+		return false;
 };
 
 export fn runAflat(string modualMain) -> string! {
@@ -146,7 +153,8 @@ export fn runAflat(string modualMain) -> string! {
 		return res.reject::<string>(new Error(`Failed to prepare sandbox image {image}`));
 	};
 
-	const string dockerCmd = `docker run --rm -v {sandboxRoot}:/workspace -w /workspace {image} -c 'aflat run -q' > {logPath} 2>&1`;
+	const int sandboxTimeoutMinutes = 4;
+	const string dockerCmd = `timeout {sandboxTimeoutMinutes}m docker run --rm -v {sandboxRoot}:/workspace -w /workspace {image} -c 'aflat run -q' > {logPath} 2>&1`;
 	log.debug(`Executing sandbox command: {dockerCmd}`);
 	const int status = sys.system(dockerCmd.cstr());
 	log.debug(`Sandbox process exited with status {status}`);
@@ -165,6 +173,11 @@ export fn runAflat(string modualMain) -> string! {
 
 	cleanupSandbox(sandboxRoot);
 	log.debug(`Cleaned up sandbox directory {sandboxRoot}`);
+
+	if status == 124 {
+		log.error(`Sandbox run exceeded {sandboxTimeoutMinutes} minute timeout`);
+		return res.reject::<string>(new Error(`Sandbox run exceeded {sandboxTimeoutMinutes} minute timeout\n{runOutput}`));
+	};
 
 	if status != 0 {
 		log.error(`Sandbox run failed with exit code {status}`);
