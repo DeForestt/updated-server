@@ -8,6 +8,7 @@ const sandbox = (() => {
 
   const samples = {
     hello: `.needs <std>
+// Basic hello world that proves the plumbing works.
 import {print} from "String" under str;
 
 fn main() -> int {
@@ -15,6 +16,7 @@ fn main() -> int {
     return 0;
 };`,
     dice: `.needs <std>
+// Use the math Random helper to roll a six-sided die.
 import Random from "math";
 import {print} from "String" under str;
 
@@ -25,11 +27,47 @@ fn main() -> int {
     return 0;
 };`,
     error: `.needs <std>
+// Demonstrates how a panic surfaces as a sandbox failure.
 import {print} from "String" under str;
 
 fn main() -> int {
     str.print("About to panic...");
     panic("boom");
+};`,
+    bubble: `.needs <std>
+// Bubble operator sample: devide() returns Error which short-circuits callers.
+
+import { openFile, createFile } from "files" under fs;
+import result from "Utils/result";
+import {accept, reject, resultWrapper} from "Utils/result" under res;
+import {print} from "String" under str;
+import string from "String";
+import Error from "Utils/Error";
+
+fn devide(int a, int b) -> int! {
+    if b == 0 return new Error("Cannot Devide by 0");
+    return a / b;
+};
+
+fn ratioOfParts(int total, int partitions, int chunks) -> int! {
+    let perPartition = devide(total, partitions)!;
+
+    let perChunk = devide(perPartition, chunks)!;
+    return perChunk;
+};
+
+fn showCase(int total, int partitions, int chunks, string label) {
+    match ratioOfParts(total, partitions, chunks) {
+        Ok(val) => str.print(\`{label} succeeded: {val}\\n\`),
+        Err(e) => str.print(\`{label} failed: {e}\\n\`)
+    };
+};
+
+fn main() {
+    // This run hits the divide-by-zero Error and bubbles it to showCase.
+    showCase(10, 0, 2, "Zero partitions");
+    // This run succeeds and proves the happy-path output.
+    showCase(10, 5, 2, "Even split");
 };`
   };
 
