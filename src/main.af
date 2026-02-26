@@ -7,7 +7,7 @@ import HTTPMessage, HTTPResponse, NotImplementedError, NotFoundError from "HTTP"
 import result from "Utils/result";
 import {accept, reject, resultWrapper} from "Utils/result" under res;
 import GET, POST, PUT, DELETE from "HTTP/Endpoints";
-import {info} from "./flat_log" under log;
+import {info, warning} from "./flat_log" under log;
 import unordered_map from "Collections/unordered_map";
 import option from "Utils/option";
 import {Some, None, optionWrapper} from "Utils/option" under opt;
@@ -20,7 +20,7 @@ import IndexJS from "./UI/Assets/IndexJS";
 import Styles from "./UI/Assets/Styles";
 import SandboxPage from "./UI/Sandbox";
 import SandboxJS from "./UI/Assets/SandboxJS";
-import {runAflat} from "./sandbox" under sandbox;
+import {runAflat, ensureSandboxImageTagReady} from "./sandbox" under sandbox;
 
 class TutorialStep signs Content {
 	fn init(const string filePath) {
@@ -182,6 +182,9 @@ class AflatServer signs Server {
 
 
 fn main() {
+	if !sandbox.ensureSandboxImageTagReady() {
+		log.warning("Sandbox image could not be prepared during startup; requests may fail");
+	};
 	let server = AflatServer();
 	server.listen();
 	return 0;

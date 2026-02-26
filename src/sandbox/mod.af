@@ -138,6 +138,18 @@ fn ensureSandboxImage(const string image) -> bool {
 		return false;
 };
 
+export fn ensureSandboxImageTagReady() -> bool {
+	const string image = resolveDockerImage();
+	const string tag = imageTag(image);
+	log.info(`Preparing sandbox image tag {tag}`);
+	if ensureSandboxImage(image) {
+		log.info(`Sandbox image tag {tag} is ready`);
+		return true;
+	};
+	log.error(`Sandbox image tag {tag} is not available`);
+	return false;
+};
+
 export fn runAflat(string modualMain) -> string! {
 	log.info(`#runAflat: received sandbox execution request ({modualMain.len()} bytes)`);
 	log.debug("Ensuring sandbox root directory exists");
