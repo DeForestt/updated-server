@@ -68,6 +68,79 @@ fn main() {
     showCase(10, 0, 2, "Zero partitions");
     // This run succeeds and proves the happy-path output.
     showCase(10, 5, 2, "Even split");
+};`,
+    jsonround: `.needs <std>
+import string from "String";
+import unordered_map from "Collections/unordered_map";
+import { print } from "String" under str;
+import vector from "Collections/Vector";
+import option from "Utils/option";
+import {Some, None, optionWrapper}from "Utils/option" under opt;
+import result from "Utils/result";
+import {accept, reject}from "Utils/result" under res;
+import Box from "Memory";
+import {wrap}from "Memory" under box;
+import JSON from "JSON";
+import {parse}from "JSON/Parse" under parser;
+import {Object, String, Number, Boolean, List}from "JSON" under json;
+import {wrap}from "Memory" under box;
+import {make_tuple}from "Collections/Tuple" under tup;
+
+fn show_roundtrip(string source) -> bool {
+    str.print("---Parsing roundtrip---\\n");
+    let __roundtrip_unused = match parser.parse(source) {
+        Ok(v) => {
+            str.print(\`Parsed JSON object:\\n{v.stringify()}\\n\`);
+            true;
+        },
+        Err(e) => {
+            str.print(\`Failed to parse sample JSON: {e}\\n\`);
+            false;
+        },
+    };
+    return true;
+};
+
+fn show_error_sample() -> bool {
+    str.print("---Checking error handling---\\n");
+    let broken = "{\\"student\\":{\\"name\\":\\"Jane\\",\\"grade\\":\\"A+\\",\\"classes\\":[\\"Math\\",\\"Science\\",{\\"name\\":\\"History\\"]},\\"advisor\\":{\\"name\\":\\"Dr. Smith\\",\\"office\\":{\\"building\\":\\"North\\"}}"; // deeply nested object missing braces/comma
+    let __error_unused = match parser.parse(broken) {
+        Ok(_) => {
+            str.print("Unexpectedly parsed invalid JSON\\n");
+            false;
+        },
+        Err(e) => {
+            str.print(\`Expected failure: {e}\\n\`);
+            true;
+        },
+    };
+    return true;
+};
+
+fn main () -> int {
+    let assignments = new vector::<Box::<JSON>>();
+    assignments.push_back(box.wrap(json.String("Math Assignment")));
+    assignments.push_back(box.wrap(json.String("Science Project")));
+    assignments.push_back(box.wrap(json.String("History Essay")));
+    let meta = json.Object({
+        "author": box.wrap(json.String("John Doe")),
+        "version": box.wrap(json.String("1.0.0")),
+        "date": box.wrap(json.String("2023-10-01")),
+        "extra": box.wrap(json.String("Excellent performance!")),
+    });
+    let obj = json.Object({
+        "name": box.wrap(json.String("Jane")),
+        "age": box.wrap(json.Number(42)),
+        "grade": box.wrap(json.String("A+")),
+        "seat": box.wrap(json.Number(12)),
+        "meta": box.wrap(meta),
+        "work": box.wrap(json.List(assignments)),
+    });
+    let obj_str = obj.stringify(1);
+    str.print(\`{obj_str}\\n\\n\\n\`);
+    show_roundtrip(obj.stringify());
+    show_error_sample();
+    return 0;
 };`
   };
 
