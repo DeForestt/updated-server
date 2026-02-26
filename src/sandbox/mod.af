@@ -7,12 +7,12 @@ import result from "Utils/result";
 import {accept, reject, resultWrapper} from "Utils/result" under res;
 import Error from "Utils/Error";
 import {info, debug, warning, error} from "../flat_log" under log;
-
-mutable int sandboxCounter = 0;
+import {getEnvVar} from "../dotenv" under env;
+import Random from "math";
 
 fn nextSandboxRoot() -> string {
-	sandboxCounter = sandboxCounter + 1;
-	return `./tmp/aflat-sandbox/run-{sandboxCounter}`;
+	let rand = Random();
+	return `./tmp/aflat-sandbox/run-{rand.nextInt(1000) + 1}{rand.nextInt(1000) + 1}`;
 };
 
 fn ensureDirectory(const string path) -> bool {
@@ -59,11 +59,53 @@ fn readFileContents(const string path) -> string! {
 };
 
 fn resolveDockerImage() -> string {
-	const adr override = sys.envVar("AFLAT_SANDBOX_IMAGE");
-	if override != NULL {
-		return new string(override);
+	let tag = env.getEnvVar("AFLAT_TAG").or("latest");
+	return `deforestt/aflat-sandbox:{tag}`;
+};
+
+fn lastColonIndex(const string value) -> int {
+	if value.len() == 0 {
+		return -1;
 	};
-	return new string("deforestt/aflat-sandbox:latest");
+	mutable int index = value.len() - 1;
+	while index >= 0 {
+		if value.at(index) == ':' {
+			return index;
+		};
+		index = index - 1;
+	};
+	return -1;
+};
+
+fn imageRepository(const string image) -> string {
+	const int colonIndex = lastColonIndex(image);
+	if colonIndex == -1 {
+		return image.copy();
+	};
+	return image.subString(0, colonIndex);
+};
+
+fn imageTag(const string image) -> string {
+	const int colonIndex = lastColonIndex(image);
+	if colonIndex == -1 {
+		return new string("latest");
+	};
+	const int tagLength = image.len() - colonIndex - 1;
+	if tagLength <= 0 {
+		return new string("latest");
+	};
+	return image.subString(colonIndex + 1, tagLength);
+};
+
+fn cleanupOldSandboxImages(const string image) {
+	const string repo = imageRepository(image);
+	if repo.len() == 0 {
+		return;
+	};
+	const string tag = imageTag(image);
+	log.debug(`Removing stale sandbox images for {repo}`);
+	const string cleanupCmd = `repo=\'{repo}\'; keep_tag=\'{tag}\'; keep_image=\'$repo:$keep_tag\'; keep_cached=\'$repo:cached\'; docker image ls \'$repo\' | tail -n +2 | while read -r repo_name tag_value _rest; do if [ -z \'$repo_name\' ]; then continue; fi; ref=\'$repo_name:$tag_value\'; if [ \'$ref\' = \'$keep_image\' ] || [ \'$re\' = \'$keep_cached\' ]; then continue; fi; docker image rm -f \'$ref\' >/dev/null 2>&1 || true; done`;
+	sys.system(cleanupCmd.cstr());
 };
 
 fn ensureSandboxImage(const string image) -> bool {
@@ -87,6 +129,7 @@ fn ensureSandboxImage(const string image) -> bool {
 		log.warning(`Sandbox image {image} still missing after waiting; attempting direct pull`);
 		const string pullCmd = `docker pull {image}`;
 		if sys.system(pullCmd.cstr()) == 0 {
+			cleanupOldSandboxImages(image);
 			log.info(`Direct pull for sandbox image {image} succeeded`);
 			return true;
 		};
