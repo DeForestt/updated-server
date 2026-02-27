@@ -21,7 +21,12 @@ import Styles from "./UI/Assets/Styles";
 import SandboxPage from "./UI/Sandbox";
 import SandboxJS from "./UI/Assets/SandboxJS";
 import {runAflat, ensureSandboxImageTagReady} from "./sandbox" under sandbox;
+import Box from "Memory";
+import {wrap}from "Memory" under box;
 import JSON from "JSON";
+import {parse}from "JSON/Parse" under parser;
+import {Object, String, Number, Boolean, List}from "JSON" under json;
+import {wrap}from "Memory" under box;
 
 class TutorialStep signs Content {
 	fn init(const string filePath) {
@@ -106,8 +111,30 @@ class AflatServer signs Server {
 		return res.accept(resp);
 	};
 
-	fn runSandbox(HTTPMessage req) : POST("/sandbox/run") {
-		string body = req.body;
+	fn runSandbox(HTTPMessage req) -> HTTPResponse! : POST("/sandbox/run") {
+		let obj = match parser.parse(req.body) {
+			Ok(val) => val,
+			Err(e) => {
+				log.warning(`Got bad json: \n{e}\n`);
+				let bad = new HTTPResponse("Recieved malformed json\n", "400", "Bad Request");
+				bad.addHeader("Content-Type", "text/plain; charset=utf-8");
+				return res.accept(bad);
+			}
+		};
+
+		let body = match obj.get("src") {
+			Some(val) => resolve val.asString(),
+			None => {
+				log.warning("JSON Missing src");
+				const string errorBody = new string("Recieved malformed json\n");
+				let bad = new HTTPResponse(errorBody.cstr(), "400", "Bad Request");
+				bad.addHeader("Content-Type", "text/plain; charset=utf-8");
+				return res.accept(bad);
+			}
+		};
+
+		string body = body!;
+		
 		if body.len() == 0 {
 			const string errorBody = new string("AFlat source is required\n");
 			let bad = new HTTPResponse(errorBody.cstr(), "400", "Bad Request");

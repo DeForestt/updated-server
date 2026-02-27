@@ -162,6 +162,29 @@ fn main () -> int {
     setOutput('Click "Run code" to see stdout...');
   };
 
+  const buildSandboxPayload = (source) => ({
+    schema: "sandbox.v1",
+    src: source,
+  });
+
+  const readResponsePayload = async (response) => {
+    const contentType = response.headers?.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      try {
+        const data = await response.json();
+        if (data && typeof data === "object") {
+          if (typeof data.stdout === "string") return data.stdout;
+          if (typeof data.output === "string") return data.output;
+          if (typeof data.error === "string") return data.error;
+          return JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        console.warn("Failed to parse JSON response", err);
+      }
+    }
+    return response.text();
+  };
+
   const run = async () => {
     if (!textarea || !runButton) return;
     const source = textarea.value.trim();
@@ -178,11 +201,11 @@ fn main () -> int {
 
       const response = await fetch("/sandbox/run", {
         method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        body: source
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildSandboxPayload(source))
       });
 
-      const text = await response.text();
+      const text = await readResponsePayload(response);
       if (response.ok) {
         setStatus("Completed", "success");
         setOutput(text);
