@@ -142,11 +142,13 @@ class AflatServer signs Server {
 			return res.accept(bad);
 		};
 
-		match sandbox.runAflat(body) {
+		let resp = match sandbox.runAflat(body) {
 			Ok(output) => {
-				let ok = new HTTPResponse(output.cstr(), "200", "OK");
-				ok.addHeader("Content-Type", "text/plain; charset=utf-8");
-				return res.accept(ok);
+				let o = json.Object({
+					"output": box.wrap(json.String(output.cstr())),
+				});
+
+				resolve o.stringify();
 			},
 			Err(err) => {
 				const string failure = `Sandbox run failed: {err}`;
@@ -155,6 +157,10 @@ class AflatServer signs Server {
 				return res.accept(bad);
 			}
 		};
+
+		let v = new HTTPResponse(resp.cstr(), "200", "Ok");
+		v.addHeader("Content-Type", "application/json; charset=utf-8");
+		return res.accept(v);
 	};
 
 
