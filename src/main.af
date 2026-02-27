@@ -21,6 +21,7 @@ import Styles from "./UI/Assets/Styles";
 import SandboxPage from "./UI/Sandbox";
 import SandboxJS from "./UI/Assets/SandboxJS";
 import {runAflat, ensureSandboxImageTagReady} from "./sandbox" under sandbox;
+import JSON from "JSON";
 
 class TutorialStep signs Content {
 	fn init(const string filePath) {
