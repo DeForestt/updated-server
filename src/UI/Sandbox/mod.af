@@ -1,7 +1,14 @@
 .needs <std>
 import Content from "Web/Content";
+import Bind from "Web/Content/Bind";
+import string from "String";
 
 class SandboxPage signs Content {
+
+    fn imageTag(string tag) : Bind("current_image") {
+        return tag.cstr();
+    };
+
     fn init() {
         my.loadFile("./public/sandbox.html");
     };

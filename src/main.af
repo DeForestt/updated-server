@@ -27,6 +27,7 @@ import JSON from "JSON";
 import {parse}from "JSON/Parse" under parser;
 import {Object, String, Number, Boolean, List}from "JSON" under json;
 import {wrap}from "Memory" under box;
+import {getEnvVar} from "./dotenv" under env;
 
 class TutorialStep signs Content {
 	fn init(const string filePath) {
@@ -99,6 +100,7 @@ class AflatServer signs Server {
 
 	fn sandboxPage() : GET("/sandbox") {
 		SandboxPage page = new SandboxPage();
+		page.imageTag = env.getEnvVar("AFLAT_TAG").or("latest");
 		let resp = new HTTPResponse(page.render(), "200", "OK");
 		resp.addHeader("Content-Type", "text/html");
 		return res.accept(resp);
@@ -144,8 +146,9 @@ class AflatServer signs Server {
 
 		let resp = match sandbox.runAflat(body) {
 			Ok(output) => {
+				let o = output.trim('\n');
 				let o = json.Object({
-					"output": box.wrap(json.String(output.cstr())),
+					"output": box.wrap(json.String(o.cstr())),
 				});
 
 				resolve o.stringify();

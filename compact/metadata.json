@@ -1,135 +1,61 @@
 {
     "processed_files": [
         {
-            "path": "docker-entrypoint.sh",
-            "chunks": 1,
-            "size": 917,
-            "lines": 43,
-            "words": 101
-        },
-        {
-            "path": "Dockerfile",
-            "chunks": 1,
-            "size": 1086,
-            "lines": 44,
-            "words": 141
-        },
-        {
-            "path": ".dockerignore",
-            "chunks": 1,
-            "size": 88,
-            "lines": 7,
-            "words": 7
-        },
-        {
-            "path": "aflat.cfg",
-            "chunks": 1,
-            "size": 458,
-            "lines": 13,
-            "words": 35
-        },
-        {
-            "path": "fly.toml",
-            "chunks": 1,
-            "size": 611,
-            "lines": 30,
-            "words": 73
-        },
-        {
-            "path": "src/main.af",
-            "chunks": 1,
-            "size": 6865,
-            "lines": 188,
-            "words": 670
-        },
-        {
-            "path": "src/sandbox/mod.af",
-            "chunks": 1,
-            "size": 5942,
-            "lines": 189,
-            "words": 653
-        },
-        {
-            "path": "src/UI/Assets/SandboxJS/mod.af",
-            "chunks": 1,
-            "size": 151,
-            "lines": 8,
-            "words": 17
-        },
-        {
             "path": "src/UI/Sandbox/mod.af",
             "chunks": 1,
-            "size": 155,
-            "lines": 8,
-            "words": 17
-        },
-        {
-            "path": "public/styles.css",
-            "chunks": 1,
-            "size": 10664,
-            "lines": 604,
-            "words": 1239
-        },
-        {
-            "path": "public/sandbox.html",
-            "chunks": 1,
-            "size": 3095,
-            "lines": 81,
-            "words": 251
-        },
-        {
-            "path": "public/sandbox.js",
-            "chunks": 1,
-            "size": 3060,
-            "lines": 117,
-            "words": 323
-        },
-        {
-            "path": "public/index.html",
-            "chunks": 1,
-            "size": 8800,
-            "lines": 207,
-            "words": 666
-        },
-        {
-            "path": "public/examples.html",
-            "chunks": 1,
-            "size": 4498,
-            "lines": 146,
-            "words": 423
-        },
-        {
-            "path": "public/tutorial.html",
-            "chunks": 1,
-            "size": 3375,
-            "lines": 75,
-            "words": 218
+            "size": 311,
+            "lines": 15,
+            "words": 34
         },
         {
             "path": "compact/metadata.json",
             "chunks": 1,
-            "size": 6426,
-            "lines": 268,
-            "words": 458
+            "size": 7430,
+            "lines": 276,
+            "words": 546
         },
         {
             "path": "compact/hashes.json",
             "chunks": 1,
-            "size": 2564,
-            "lines": 39,
-            "words": 76
+            "size": 3589,
+            "lines": 55,
+            "words": 108
         },
         {
-            "path": "compact/remaining/aflat-server.txt",
+            "path": "compact/remaining/chunk_0.txt",
             "chunks": 1,
-            "size": 63878,
-            "lines": 2082,
-            "words": 6446
+            "size": 213568,
+            "lines": 6607,
+            "words": 21202
         }
     ],
     "skipped_files": [
         {
+            "path": "docker-entrypoint.sh",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
             "path": "flat_log.aflat.cfg",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": ".env",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "dotenv.aflat.cfg",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "Dockerfile",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": ".dockerignore",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "openapi.yaml",
             "reason": "Unchanged file (hash match)"
         },
         {
@@ -137,7 +63,31 @@
             "reason": "Unchanged file (hash match)"
         },
         {
+            "path": "aflat.cfg",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "fly.toml",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
             "path": ".gitignore",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/main.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/sandbox/mod.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/dotenv/mod.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "src/dotenv/test/test.af",
             "reason": "Unchanged file (hash match)"
         },
         {
@@ -173,11 +123,39 @@
             "reason": "Unchanged file (hash match)"
         },
         {
+            "path": "src/UI/Assets/SandboxJS/mod.af",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
             "path": "src/UI/Examples/mod.af",
             "reason": "Unchanged file (hash match)"
         },
         {
+            "path": "public/styles.css",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "public/sandbox.html",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "public/sandbox.js",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "public/index.html",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "public/examples.html",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
             "path": "public/index.js",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "public/tutorial.html",
             "reason": "Unchanged file (hash match)"
         },
         {
@@ -243,10 +221,18 @@
         {
             "path": "public/tutorial/steps/roster.html",
             "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "compact/remaining/aflat-server.txt",
+            "reason": "Unchanged file (hash match)"
+        },
+        {
+            "path": "docs/aflat-comprehensive-reference.md",
+            "reason": "Unchanged file (hash match)"
         }
     ],
     "summary": {
-        "total_files_processed": 18,
-        "total_words": 11814
+        "total_files_processed": 4,
+        "total_words": 21890
     }
 }
