@@ -65,7 +65,7 @@ mutable Logger logger = NULL;
 
 export fn getLogger() -> Logger {
   if logger == NULL {
-    logger = malloc(Logger);
+    logger = create(Logger);
     adr level = sys.envVar("LOG_LEVEL");
     logger.level = logLevelFromString(
       if level == NULL "INFO" else level

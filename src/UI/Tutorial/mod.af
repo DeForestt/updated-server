@@ -2,6 +2,12 @@
 import Content from "Web/Content";
 
 class Tutorial signs Content {
+
+    fn imageTag(string tag) : Bind("current_image") {
+        return tag.cstr();
+    };
+    
+
     fn init() {
         my.loadFile("./public/tutorial.html");
     };

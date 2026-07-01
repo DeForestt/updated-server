@@ -1,6 +1,7 @@
 .needs <std>
 import {print} from "String" under str;
 import string from "String";
+import uni_string from "uni_string";
 import Server from "HTTP/Server";
 import Middleware from "HTTP/Middleware";
 import HTTPMessage, HTTPResponse, NotImplementedError, NotFoundError from "HTTP";
@@ -38,8 +39,8 @@ class TutorialStep signs Content {
 
 class AflatServer signs Server {
 
-	fn logRequest() -> unordered_map::<adr> : Middleware {
-		unordered_map::<adr> val = {
+	fn logRequest() -> unordered_map::<adr, adr> : Middleware {
+		unordered_map::<adr, adr> val = {
 			"before": fn (Server __s, HTTPMessage &&req) {
 				log.info(`[{http.methodToString(req.method)}] {req.endpoint}\n`);
 				return req;
@@ -53,36 +54,16 @@ class AflatServer signs Server {
 	};
 
 	fn addContentLength() : Middleware {
-    	unordered_map::<adr> val = {
+    	unordered_map::<adr, adr> val = {
    			"after": fn (Server __s, HTTPMessage __req, HTTPResponse &&r) {
    				const string body = r.getBody();
-   	 			r.addHeader("Content-Length", `{body.len()}`.cstr());
+          uni_string lval = `{body.len()}`;
+   	 			r.addHeader("Content-Length",  lval.as_buf().release());
 				return r;
     		},
     	};
     	return val;
     };
-
-	fn index() : GET("/") {
-		Index home = new Index();
-		let resp = new HTTPResponse(home.render(), "200", "OK");
-		resp.addHeader("Content-Type", "text/html");
-		return res.accept(resp);
-	};
-
-	fn tutorial() : GET("/tutorial") {
-		Tutorial page = new Tutorial();
-		let resp = new HTTPResponse(page.render(), "200", "OK");
-		resp.addHeader("Content-Type", "text/html");
-		return res.accept(resp);
-	};
-
-	fn examples() : GET("/examples") {
-		Examples page = new Examples();
-		let resp = new HTTPResponse(page.render(), "200", "OK");
-		resp.addHeader("Content-Type", "text/html");
-		return res.accept(resp);
-	};
 
 	fn assetScript() : GET("/index.js") {
 		IndexJS script = new IndexJS();
@@ -98,18 +79,18 @@ class AflatServer signs Server {
 		return res.accept(resp);
 	};
 
+	fn sandboxScript() : GET("/sandbox.js") {
+		SandboxJS script = new SandboxJS();
+		let resp = new HTTPResponse(script.render(), "200", "OK");
+		resp.addHeader("Content-Type", "application/javascript");
+		return res.accept(resp);
+	};
+
 	fn sandboxPage() : GET("/sandbox") {
 		SandboxPage page = new SandboxPage();
 		page.imageTag = env.getEnvVar("AFLAT_TAG").or("latest");
 		let resp = new HTTPResponse(page.render(), "200", "OK");
 		resp.addHeader("Content-Type", "text/html");
-		return res.accept(resp);
-	};
-
-	fn sandboxScript() : GET("/sandbox.js") {
-		SandboxJS script = new SandboxJS();
-		let resp = new HTTPResponse(script.render(), "200", "OK");
-		resp.addHeader("Content-Type", "application/javascript");
 		return res.accept(resp);
 	};
 
@@ -170,7 +151,7 @@ class AflatServer signs Server {
 	fn tutorialStep(HTTPMessage msg, ? string stepId) : GET("/tutorial/steps/:*") {
 		if stepId.isNone() {
 			const string body = new string("Step not found");
-			let resp = new HTTPResponse(body, "404", "Not Found");
+			let resp = new HTTPResponse(body.cstr(), "404", "Not Found");
 			resp.addHeader("Content-Type", "text/plain");
 			return res.accept(resp);
 		};
@@ -184,11 +165,32 @@ class AflatServer signs Server {
 			},
 			None => {
 				const string body = new string("Step not found");
-				let resp = new HTTPResponse(body, "404", "Not Found");
+				let resp = new HTTPResponse(body.cstr(), "404", "Not Found");
 				resp.addHeader("Content-Type", "text/plain");
 				return res.accept(resp);
 			}
 		};
+	};
+
+	fn tutorial() : GET("/tutorial") {
+		Tutorial page = new Tutorial();
+		let resp = new HTTPResponse(page.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
+	};
+
+	fn examples() : GET("/examples") {
+		Examples page = new Examples();
+		let resp = new HTTPResponse(page.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
+	};
+
+	fn index() : GET("/") {
+		Index home = new Index();
+		let resp = new HTTPResponse(home.render(), "200", "OK");
+		resp.addHeader("Content-Type", "text/html");
+		return res.accept(resp);
 	};
 
 	fn stepPath(const string step) -> option::<string> {

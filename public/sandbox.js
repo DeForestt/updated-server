@@ -150,9 +150,21 @@ fn main () -> int {
     status.dataset.tone = tone;
   };
 
+  const normalizeOutput = (value) => {
+    if (value == null || value === "") return "(no output)";
+    const text = typeof value === "string" ? value : String(value);
+
+    return text
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .replace(/\\r\\n/g, "\n")
+      .replace(/\\r/g, "\n")
+      .replace(/\\n/g, "\n");
+  };
+
   const setOutput = (text) => {
     if (!output) return;
-    output.textContent = text || "(no output)";
+    output.textContent = normalizeOutput(text);
   };
 
   const resetSample = () => {
