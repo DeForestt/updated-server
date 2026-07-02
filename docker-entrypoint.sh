@@ -34,7 +34,22 @@ cleanup_old_sandbox_images() {
 }
 
 verify_sandbox_image() {
-  docker run --rm "$SANDBOX_IMAGE" -c 'aflat --help >/dev/null'
+  docker run --rm "$SANDBOX_IMAGE" -c 'aflat --help >/dev/null 2>&1; code=$?; [ "$code" -eq 0 ] || [ "$code" -eq 1 ]'
+}
+
+pull_sandbox_image() {
+  if command -v ionice >/dev/null 2>&1; then
+    ionice -c3 nice -n 19 docker pull "$SANDBOX_IMAGE"
+  else
+    nice -n 19 docker pull "$SANDBOX_IMAGE"
+  fi
+}
+
+mark_sandbox_ready() {
+  docker image tag "$SANDBOX_IMAGE" "${SANDBOX_IMAGE%:*}:cached"
+  cleanup_old_sandbox_images
+  echo "ready" > /project/tmp/aflat-sandbox-image.status
+  echo "Sandbox image is ready"
 }
 
 start_dockerd() {
@@ -57,10 +72,24 @@ ensure_sandbox_image_async() {
   mkdir -p /project/tmp
   if docker image inspect "$SANDBOX_IMAGE" >/dev/null 2>&1; then
     if verify_sandbox_image; then
-      echo "ready" > /project/tmp/aflat-sandbox-image.status
+      mark_sandbox_ready
     else
-      echo "error" > /project/tmp/aflat-sandbox-image.status
-      echo "Sandbox image is present but failed the aflat smoke test" >&2
+      echo "preparing" > /project/tmp/aflat-sandbox-image.status
+      echo "Sandbox image is present but failed the aflat smoke test; pulling a fresh copy" >&2
+      if docker image rm -f "$SANDBOX_IMAGE" >/dev/null 2>&1; then
+        echo "Removed failed local sandbox image $SANDBOX_IMAGE"
+      fi
+      (
+        set +e
+        if pull_sandbox_image && verify_sandbox_image; then
+          mark_sandbox_ready
+        else
+          echo "error" > /project/tmp/aflat-sandbox-image.status
+          echo "Sandbox image refresh or smoke test failed" >&2
+        fi
+      ) &
+      SANDBOX_PULL_PID=$!
+      export SANDBOX_PULL_PID
     fi
     return
   fi
@@ -69,17 +98,9 @@ ensure_sandbox_image_async() {
   (
     set +e
     sleep 10
-    if command -v ionice >/dev/null 2>&1; then
-      pull_cmd=(ionice -c3 nice -n 19 docker pull "$SANDBOX_IMAGE")
-    else
-      pull_cmd=(nice -n 19 docker pull "$SANDBOX_IMAGE")
-    fi
 
-    if "${pull_cmd[@]}" && verify_sandbox_image; then
-      docker image tag "$SANDBOX_IMAGE" "${SANDBOX_IMAGE%:*}:cached"
-      cleanup_old_sandbox_images
-      echo "ready" > /project/tmp/aflat-sandbox-image.status
-      echo "Sandbox image pull completed"
+    if pull_sandbox_image && verify_sandbox_image; then
+      mark_sandbox_ready
     else
       echo "error" > /project/tmp/aflat-sandbox-image.status
       echo "Sandbox image pull or smoke test failed" >&2
