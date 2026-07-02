@@ -21,7 +21,7 @@ import IndexJS from "./UI/Assets/IndexJS";
 import Styles from "./UI/Assets/Styles";
 import SandboxPage from "./UI/Sandbox";
 import SandboxJS from "./UI/Assets/SandboxJS";
-import {runAflat, startSandboxImagePreparation, isSandboxImageReady, isSandboxImageReportedReady, sandboxImageName, sandboxImageStatus} from "./sandbox" under sandbox;
+import {runAflat, isSandboxImageReady, isSandboxImageReportedReady, sandboxImageName, sandboxImageStatus} from "./sandbox" under sandbox;
 import Box from "Memory";
 import {wrap}from "Memory" under box;
 import JSON from "JSON";
@@ -249,7 +249,6 @@ class AflatServer signs Server {
 
 
 fn main() {
-	sandbox.startSandboxImagePreparation();
 	let server = AflatServer();
 	server.listen();
 	return 0;

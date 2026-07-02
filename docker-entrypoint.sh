@@ -44,17 +44,29 @@ start_dockerd() {
 }
 
 ensure_sandbox_image_async() {
+  mkdir -p /project/tmp
   if docker image inspect "$SANDBOX_IMAGE" >/dev/null 2>&1; then
+    echo "ready" > /project/tmp/aflat-sandbox-image.status
     return
   fi
 
+  echo "preparing" > /project/tmp/aflat-sandbox-image.status
   (
     set +e
-    if docker pull "$SANDBOX_IMAGE"; then
+    sleep 10
+    if command -v ionice >/dev/null 2>&1; then
+      pull_cmd=(ionice -c3 nice -n 19 docker pull "$SANDBOX_IMAGE")
+    else
+      pull_cmd=(nice -n 19 docker pull "$SANDBOX_IMAGE")
+    fi
+
+    if "${pull_cmd[@]}"; then
       docker image tag "$SANDBOX_IMAGE" "${SANDBOX_IMAGE%:*}:cached"
       cleanup_old_sandbox_images
+      echo "ready" > /project/tmp/aflat-sandbox-image.status
       echo "Sandbox image pull completed"
     else
+      echo "error" > /project/tmp/aflat-sandbox-image.status
       echo "Sandbox image pull failed" >&2
     fi
   ) &
@@ -64,4 +76,5 @@ ensure_sandbox_image_async() {
 
 start_dockerd
 cd /project
+ensure_sandbox_image_async
 exec sudo -E ./bin/a.out "$@"
