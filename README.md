@@ -8,12 +8,16 @@ This project was generated with the AFlat toolchain. Use the commands below to b
 - `aflat test` - build and run the configured test target.
 
 ## Sandbox Image Workflow
-The runtime pulls the sandbox Docker image defined in `AFLAT_SANDBOX_IMAGE`
-during startup. To publish updates:
+The runtime pulls the sandbox Docker image during startup. `AFLAT_TAG` wins
+when set and resolves to `deforestt/aflat-sandbox:<tag>`; otherwise the app
+uses `AFLAT_SANDBOX_IMAGE` or falls back to `deforestt/aflat-sandbox:latest`.
+To publish updates:
 
-1. Build the sandbox image locally: `docker build -f Dockerfile.sandbox -t deforestt/aflat-sandbox:latest .`
-2. Push it: `docker push deforestt/aflat-sandbox:latest`
-3. Deploy the app (`fly deploy`) so new machines pull the latest tag.
+1. Choose the tag used by the app, for example `sandbox-20260701-72e4194`.
+2. Build the sandbox image for the deployment architecture:
+   `docker build --platform linux/amd64 -f Dockerfile.sandbox -t deforestt/aflat-sandbox:sandbox-20260701-72e4194 .`
+3. Push it: `docker push deforestt/aflat-sandbox:sandbox-20260701-72e4194`
+4. Deploy the app (`fly deploy`) with the same `AFLAT_TAG` so new machines pull that tag.
 
 ## Inspecting Code
 - `aflat docs src/main.af` lists classes, unions, transforms, and functions in this project.

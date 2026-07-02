@@ -66,8 +66,15 @@ fn readFileContents(const string path) -> string! {
 };
 
 fn resolveDockerImage() -> string {
-	let tag = env.getEnvVar("AFLAT_TAG").or("latest");
-	return `deforestt/aflat-sandbox:{tag}`;
+	let tag = env.getEnvVar("AFLAT_TAG").or("");
+	if tag.len() > 0 {
+		return `deforestt/aflat-sandbox:{tag}`;
+	};
+	let image = env.getEnvVar("AFLAT_SANDBOX_IMAGE").or("");
+	if image.len() > 0 {
+		return image;
+	};
+	return new string("deforestt/aflat-sandbox:latest");
 };
 
 fn lastColonIndex(const string value) -> int {
@@ -178,7 +185,17 @@ export fn startSandboxImagePreparation() {
 
 export fn isSandboxImageReady() -> bool {
 	const string image = resolveDockerImage();
-	return isSandboxImageAvailable(image);
+	if !isSandboxImageAvailable(image) {
+		return false;
+	};
+	match readFileContents(imageStatusPath()) {
+		Ok(contents) => {
+			return contents.trim('\n') == "ready";
+		},
+		Err(_) => {
+			return false;
+		}
+	};
 };
 
 export fn sandboxImageName() -> string {

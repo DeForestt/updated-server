@@ -1,7 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
-SANDBOX_IMAGE="${AFLAT_SANDBOX_IMAGE:-deforestt/aflat-sandbox:latest}"
+if [[ -n "${AFLAT_TAG:-}" ]]; then
+  SANDBOX_IMAGE="deforestt/aflat-sandbox:${AFLAT_TAG:-latest}"
+elif [[ -n "${AFLAT_SANDBOX_IMAGE:-}" ]]; then
+  SANDBOX_IMAGE="$AFLAT_SANDBOX_IMAGE"
+else
+  SANDBOX_IMAGE="deforestt/aflat-sandbox:latest"
+fi
 
 cleanup_old_sandbox_images() {
   local repo="${SANDBOX_IMAGE%:*}"
@@ -27,6 +33,10 @@ cleanup_old_sandbox_images() {
   done <<<"$image_listing"
 }
 
+verify_sandbox_image() {
+  docker run --rm "$SANDBOX_IMAGE" -c 'aflat --help >/dev/null'
+}
+
 start_dockerd() {
   mkdir -p /var/lib/docker /var/run
   dockerd --host=unix:///var/run/docker.sock --storage-driver=vfs > /var/log/dockerd.log 2>&1 &
@@ -46,7 +56,12 @@ start_dockerd() {
 ensure_sandbox_image_async() {
   mkdir -p /project/tmp
   if docker image inspect "$SANDBOX_IMAGE" >/dev/null 2>&1; then
-    echo "ready" > /project/tmp/aflat-sandbox-image.status
+    if verify_sandbox_image; then
+      echo "ready" > /project/tmp/aflat-sandbox-image.status
+    else
+      echo "error" > /project/tmp/aflat-sandbox-image.status
+      echo "Sandbox image is present but failed the aflat smoke test" >&2
+    fi
     return
   fi
 
@@ -60,14 +75,14 @@ ensure_sandbox_image_async() {
       pull_cmd=(nice -n 19 docker pull "$SANDBOX_IMAGE")
     fi
 
-    if "${pull_cmd[@]}"; then
+    if "${pull_cmd[@]}" && verify_sandbox_image; then
       docker image tag "$SANDBOX_IMAGE" "${SANDBOX_IMAGE%:*}:cached"
       cleanup_old_sandbox_images
       echo "ready" > /project/tmp/aflat-sandbox-image.status
       echo "Sandbox image pull completed"
     else
       echo "error" > /project/tmp/aflat-sandbox-image.status
-      echo "Sandbox image pull failed" >&2
+      echo "Sandbox image pull or smoke test failed" >&2
     fi
   ) &
   SANDBOX_PULL_PID=$!

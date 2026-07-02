@@ -88,7 +88,7 @@ class AflatServer signs Server {
 
 	fn sandboxPage() : GET("/sandbox") {
 		SandboxPage page = new SandboxPage();
-		page.imageTag = env.getEnvVar("AFLAT_TAG").or("latest");
+		page.imageTag = sandbox.sandboxImageName();
 		let resp = new HTTPResponse(page.render(), "200", "OK");
 		resp.addHeader("Content-Type", "text/html");
 		return res.accept(resp);

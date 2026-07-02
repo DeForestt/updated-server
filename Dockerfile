@@ -14,10 +14,13 @@ RUN apt-get update && apt-get install -y \
 
 # Clone and build AFlat using the official workflow
 ENV AFLAT_ROOT=/root/.aflat/aflat
+ENV AFLAT_PORTABLE_FLAGS="-O2 -DNDEBUG -march=x86-64 -mtune=generic"
 RUN mkdir -p /root/.aflat \
     && git clone https://github.com/DeForestt/aflat.git ${AFLAT_ROOT}
 
 RUN cmake -S ${AFLAT_ROOT} -B ${AFLAT_ROOT}/build -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_FLAGS_RELEASE="${AFLAT_PORTABLE_FLAGS}" \
+        -DCMAKE_CXX_FLAGS_RELEASE="${AFLAT_PORTABLE_FLAGS}" \
     && cmake --build ${AFLAT_ROOT}/build --target aflat \
     && cd ${AFLAT_ROOT} && bash rebuild-libs.sh
 
