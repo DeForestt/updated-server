@@ -516,6 +516,32 @@ footer {
   gap: 1.5rem;
 }
 
+.sandbox-readiness {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.85rem;
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  border-radius: 0.75rem;
+  background: rgba(250, 204, 21, 0.08);
+  color: var(--text);
+  padding: 0.85rem 1rem;
+}
+
+.sandbox-readiness span {
+  color: var(--muted);
+}
+
+.sandbox-readiness[data-tone="success"] {
+  border-color: rgba(74, 222, 128, 0.35);
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.sandbox-readiness[data-tone="error"] {
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.08);
+}
+
 .sandbox-intro p {
   color: var(--muted);
   margin-bottom: 0;
@@ -542,6 +568,11 @@ footer {
   font-family: "JetBrains Mono", "Fira Code", ui-monospace;
   font-size: 0.95rem;
   resize: vertical;
+}
+
+.sandbox-form textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
 }
 
 .sandbox-actions {

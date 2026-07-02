@@ -5,6 +5,10 @@ const sandbox = (() => {
   const runButton = document.getElementById("sandbox-run");
   const resetButton = document.getElementById("sandbox-reset");
   const snippetButtons = Array.from(document.querySelectorAll("[data-snippet]"));
+  const readiness = document.getElementById("sandbox-readiness");
+  const readinessTitle = document.getElementById("sandbox-readiness-title");
+  const readinessDetail = document.getElementById("sandbox-readiness-detail");
+  let sandboxReady = false;
 
   const samples = {
     hello: `.needs <std>
@@ -167,6 +171,28 @@ fn main () -> int {
     output.textContent = normalizeOutput(text);
   };
 
+  const setControlsLocked = (locked) => {
+    if (textarea) textarea.disabled = locked;
+    if (runButton) runButton.disabled = locked;
+    if (resetButton) resetButton.disabled = locked;
+    snippetButtons.forEach((btn) => {
+      btn.disabled = locked;
+    });
+  };
+
+  const setReadiness = (ready, detail, tone = "pending") => {
+    sandboxReady = ready;
+    if (readiness) {
+      readiness.dataset.ready = ready ? "true" : "false";
+      readiness.dataset.tone = tone;
+    }
+    if (readinessTitle) {
+      readinessTitle.textContent = ready ? "Sandbox ready" : "Preparing sandbox";
+    }
+    if (readinessDetail) readinessDetail.textContent = detail;
+    setControlsLocked(!ready);
+  };
+
   const resetSample = () => {
     if (!textarea) return;
     textarea.value = samples.hello;
@@ -199,6 +225,11 @@ fn main () -> int {
 
   const run = async () => {
     if (!textarea || !runButton) return;
+    if (!sandboxReady) {
+      setStatus("Preparing", "pending");
+      setOutput("The Docker sandbox image is still loading. Try again once it is ready.");
+      return;
+    }
     const source = textarea.value.trim();
     if (!source) {
       setStatus("Enter code first", "error");
@@ -234,6 +265,37 @@ fn main () -> int {
     }
   };
 
+  const pollReadiness = async () => {
+    try {
+      const response = await fetch("/sandbox/ready", { headers: { "Accept": "application/json" } });
+      const data = await response.json();
+      const image = data && typeof data.image === "string" ? data.image : "sandbox image";
+      const state = data && typeof data.status === "string" ? data.status : "preparing";
+
+      if (data && data.ready === true) {
+        setReadiness(true, `${image} is available.`, "success");
+        setStatus("Ready", "success");
+        return;
+      }
+
+      if (state === "error") {
+        setReadiness(false, `${image} could not be prepared.`, "error");
+        setStatus("Unavailable", "error");
+        window.setTimeout(pollReadiness, 5000);
+        return;
+      }
+
+      setReadiness(false, `${image} is still loading.`, "pending");
+      setStatus("Preparing", "pending");
+      window.setTimeout(pollReadiness, 2000);
+    } catch (err) {
+      console.warn("Failed to check sandbox readiness", err);
+      setReadiness(false, "Unable to check sandbox readiness.", "error");
+      setStatus("Checking", "pending");
+      window.setTimeout(pollReadiness, 5000);
+    }
+  };
+
   if (snippetButtons.length && textarea) {
     snippetButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -259,5 +321,7 @@ fn main () -> int {
     });
   }
 
+  setReadiness(false, "Checking Docker image readiness...", "pending");
   resetSample();
+  pollReadiness();
 })();

@@ -21,7 +21,7 @@ import IndexJS from "./UI/Assets/IndexJS";
 import Styles from "./UI/Assets/Styles";
 import SandboxPage from "./UI/Sandbox";
 import SandboxJS from "./UI/Assets/SandboxJS";
-import {runAflat, ensureSandboxImageTagReady} from "./sandbox" under sandbox;
+import {runAflat, startSandboxImagePreparation, isSandboxImageReady, sandboxImageName, sandboxImageStatus} from "./sandbox" under sandbox;
 import Box from "Memory";
 import {wrap}from "Memory" under box;
 import JSON from "JSON";
@@ -94,7 +94,35 @@ class AflatServer signs Server {
 		return res.accept(resp);
 	};
 
+	fn sandboxReady() : GET("/sandbox/ready") {
+		const bool ready = sandbox.isSandboxImageReady();
+		const string status = sandbox.sandboxImageStatus();
+		const string image = sandbox.sandboxImageName();
+		mutable string readyValue = "false";
+		if ready {
+			readyValue = "true";
+		};
+		mutable string body = "{\"ready\":";
+		body = body + readyValue;
+		body = body + ",\"status\":\"";
+		body = body + status;
+		body = body + "\",\"image\":\"";
+		body = body + image;
+		body = body + "\"}";
+		let resp = new HTTPResponse(body.cstr(), "200", "OK");
+		resp.addHeader("Content-Type", "application/json; charset=utf-8");
+		return res.accept(resp);
+	};
+
 	fn runSandbox(HTTPMessage req) -> HTTPResponse! : POST("/sandbox/run") {
+		if !sandbox.isSandboxImageReady() {
+			const string image = sandbox.sandboxImageName();
+			const string failure = `Sandbox image {image} is still preparing. Try again shortly.`;
+			let pending = new HTTPResponse(failure.cstr(), "503", "Service Unavailable");
+			pending.addHeader("Content-Type", "text/plain; charset=utf-8");
+			return res.accept(pending);
+		};
+
 		let obj = match parser.parse(req.body) {
 			Ok(val) => val,
 			Err(e) => {
@@ -221,9 +249,7 @@ class AflatServer signs Server {
 
 
 fn main() {
-	if !sandbox.ensureSandboxImageTagReady() {
-		log.warning("Sandbox image could not be prepared during startup; requests may fail");
-	};
+	sandbox.startSandboxImagePreparation();
 	let server = AflatServer();
 	server.listen();
 	return 0;

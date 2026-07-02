@@ -9,7 +9,9 @@ import Error from "Utils/Error";
 import {info, debug, warning, error} from "../flat_log" under log;
 import {getEnvVar} from "../dotenv" under env;
 import Random from "math";
+import {worker} from "concurrency" under async;
 
+mutable any sandboxImagePrep = NULL;
 
 fn nextSandboxRoot() -> string {
 	let rand = Random();
@@ -24,6 +26,10 @@ fn ensureDirectory(const string path) -> bool {
 fn cleanupSandbox(const string path) {
 	const string command = `rm -rf {path}`;
 	sys.system(command.cstr());
+};
+
+fn imageStatusPath() -> string {
+	return new string("./tmp/aflat-sandbox-image.status");
 };
 
 fn writeTextFile(const string path, const string body) -> bool {
@@ -109,10 +115,19 @@ fn cleanupOldSandboxImages(const string image) {
 	sys.system(cleanupCmd.cstr());
 };
 
+fn writeImageStatus(const string status) {
+	ensureDirectory("./tmp");
+	writeTextFile(imageStatusPath(), status);
+};
+
+fn isSandboxImageAvailable(const string image) -> bool {
+	const string inspectCmd = `docker image inspect {image} > /dev/null 2>&1`;
+	return sys.system(inspectCmd.cstr()) == 0;
+};
+
 fn ensureSandboxImage(const string image) -> bool {
 	log.debug(`Checking availability of sandbox image {image}`);
-	const string inspectCmd = `docker image inspect {image} > /dev/null 2>&1`;
-	if sys.system(inspectCmd.cstr()) == 0 {
+	if isSandboxImageAvailable(image) {
 		return true;
 	};
 
@@ -120,7 +135,7 @@ fn ensureSandboxImage(const string image) -> bool {
 		mutable int attempts = 0;
 		while attempts < 60 {
 			sys.system("sleep 1");
-			if sys.system(inspectCmd.cstr()) == 0 {
+			if isSandboxImageAvailable(image) {
 				log.info(`Sandbox image {image} became available after waiting {attempts + 1} seconds`);
 				return true;
 			};
@@ -137,6 +152,56 @@ fn ensureSandboxImage(const string image) -> bool {
 
 		log.error(`Sandbox image {image} is not available; docker pull failed`);
 		return false;
+};
+
+any prepareSandboxImageInBackground(const adr __arg) : async.worker {
+	const string image = resolveDockerImage();
+	const string tag = imageTag(image);
+	log.info(`Preparing sandbox image tag {tag} in background`);
+	writeImageStatus("preparing");
+	if ensureSandboxImage(image) {
+		writeImageStatus("ready");
+		log.info(`Sandbox image tag {tag} is ready`);
+		return "ready";
+	};
+	writeImageStatus("error");
+	log.error(`Sandbox image tag {tag} is not available`);
+	return "error";
+};
+
+export fn startSandboxImagePreparation() {
+	if sandboxImagePrep == NULL {
+		sandboxImagePrep = async.worker(prepareSandboxImageInBackground, NULL);
+	};
+};
+
+export fn isSandboxImageReady() -> bool {
+	const string image = resolveDockerImage();
+	return isSandboxImageAvailable(image);
+};
+
+export fn sandboxImageName() -> string {
+	return resolveDockerImage();
+};
+
+export fn sandboxImageStatus() -> string {
+	const string image = resolveDockerImage();
+	if isSandboxImageAvailable(image) {
+		writeImageStatus("ready");
+		return new string("ready");
+	};
+
+	match readFileContents(imageStatusPath()) {
+		Ok(contents) => {
+			const string status = contents.trim('\n');
+			if status.len() > 0 {
+				return status;
+			};
+		},
+		Err(_) => {}
+	};
+
+	return new string("preparing");
 };
 
 export fn ensureSandboxImageTagReady() -> bool {
@@ -206,9 +271,9 @@ export fn runAflat(string modualMain) -> string! {
 
 	const string image = resolveDockerImage();
 	log.info(`Using sandbox image {image}`);
-	if !ensureSandboxImage(image) {
+	if !isSandboxImageAvailable(image) {
 		cleanupSandbox(sandboxRoot);
-		return res.reject::<string>(new Error(`Failed to prepare sandbox image {image}`));
+		return res.reject::<string>(new Error(`Sandbox image {image} is not ready yet`));
 	};
 
 	const int sandboxTimeoutMinutes = 4;
