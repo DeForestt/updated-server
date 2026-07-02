@@ -21,7 +21,7 @@ import IndexJS from "./UI/Assets/IndexJS";
 import Styles from "./UI/Assets/Styles";
 import SandboxPage from "./UI/Sandbox";
 import SandboxJS from "./UI/Assets/SandboxJS";
-import {runAflat, startSandboxImagePreparation, isSandboxImageReady, sandboxImageName, sandboxImageStatus} from "./sandbox" under sandbox;
+import {runAflat, startSandboxImagePreparation, isSandboxImageReady, isSandboxImageReportedReady, sandboxImageName, sandboxImageStatus} from "./sandbox" under sandbox;
 import Box from "Memory";
 import {wrap}from "Memory" under box;
 import JSON from "JSON";
@@ -95,8 +95,8 @@ class AflatServer signs Server {
 	};
 
 	fn sandboxReady() : GET("/sandbox/ready") {
-		const bool ready = sandbox.isSandboxImageReady();
 		const string status = sandbox.sandboxImageStatus();
+		const bool ready = sandbox.isSandboxImageReportedReady();
 		const string image = sandbox.sandboxImageName();
 		mutable string readyValue = "false";
 		if ready {

@@ -63,6 +63,5 @@ ensure_sandbox_image_async() {
 }
 
 start_dockerd
-ensure_sandbox_image_async
 cd /project
 exec sudo -E ./bin/a.out "$@"

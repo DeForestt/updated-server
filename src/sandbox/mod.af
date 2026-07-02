@@ -111,7 +111,7 @@ fn cleanupOldSandboxImages(const string image) {
 	};
 	const string tag = imageTag(image);
 	log.debug(`Removing stale sandbox images for {repo}`);
-	const string cleanupCmd = `repo=\'{repo}\'; keep_tag=\'{tag}\'; keep_image=\'$repo:$keep_tag\'; keep_cached=\'$repo:cached\'; docker image ls \'$repo\' | tail -n +2 | while read -r repo_name tag_value _rest; do if [ -z \'$repo_name\' ]; then continue; fi; ref=\'$repo_name:$tag_value\'; if [ \'$ref\' = \'$keep_image\' ] || [ \'$re\' = \'$keep_cached\' ]; then continue; fi; docker image rm -f \'$ref\' >/dev/null 2>&1 || true; done`;
+	const string cleanupCmd = `repo=\'{repo}\'; keep_tag=\'{tag}\'; keep_image=\'$repo:$keep_tag\'; keep_cached=\'$repo:cached\'; docker image ls \'$repo\' | tail -n +2 | while read -r repo_name tag_value _rest; do if [ -z \'$repo_name\' ]; then continue; fi; ref=\'$repo_name:$tag_value\'; if [ \'$ref\' = \'$keep_image\' ] || [ \'$ref\' = \'$keep_cached\' ]; then continue; fi; docker image rm -f \'$ref\' >/dev/null 2>&1 || true; done`;
 	sys.system(cleanupCmd.cstr());
 };
 
@@ -143,7 +143,7 @@ fn ensureSandboxImage(const string image) -> bool {
 		};
 
 		log.warning(`Sandbox image {image} still missing after waiting; attempting direct pull`);
-		const string pullCmd = `docker pull {image}`;
+		const string pullCmd = `if command -v ionice >/dev/null 2>&1; then ionice -c3 nice -n 19 docker pull {image}; else nice -n 19 docker pull {image}; fi`;
 		if sys.system(pullCmd.cstr()) == 0 {
 			cleanupOldSandboxImages(image);
 			log.info(`Direct pull for sandbox image {image} succeeded`);
@@ -171,6 +171,7 @@ any prepareSandboxImageInBackground(const adr __arg) : async.worker {
 
 export fn startSandboxImagePreparation() {
 	if sandboxImagePrep == NULL {
+		writeImageStatus("preparing");
 		sandboxImagePrep = async.worker(prepareSandboxImageInBackground, NULL);
 	};
 };
@@ -185,12 +186,6 @@ export fn sandboxImageName() -> string {
 };
 
 export fn sandboxImageStatus() -> string {
-	const string image = resolveDockerImage();
-	if isSandboxImageAvailable(image) {
-		writeImageStatus("ready");
-		return new string("ready");
-	};
-
 	match readFileContents(imageStatusPath()) {
 		Ok(contents) => {
 			const string status = contents.trim('\n');
@@ -202,6 +197,10 @@ export fn sandboxImageStatus() -> string {
 	};
 
 	return new string("preparing");
+};
+
+export fn isSandboxImageReportedReady() -> bool {
+	return sandboxImageStatus() == "ready";
 };
 
 export fn ensureSandboxImageTagReady() -> bool {
